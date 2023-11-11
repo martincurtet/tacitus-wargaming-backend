@@ -1,6 +1,7 @@
 const express = require('express')
 const { createServer } = require('node:http')
 const socket = require('./src/socket')
+require('console-stamp')(console, 'yyyy/mm/dd HH:MM:ss')
 
 const URL = 'http://localhost'
 const PORT = 8080
