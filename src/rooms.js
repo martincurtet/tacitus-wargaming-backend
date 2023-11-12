@@ -23,7 +23,7 @@ const readRoom = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
     return rooms[uuid]
   } else {
-    console.error(`# Could find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid}`)
   }
 }
 
@@ -33,7 +33,25 @@ const deleteRoom = (uuid) => {
     delete rooms[uuid]
     console.log(`# Room ${uuid} deleted`)
   } else {
-    console.error(`# Could find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid}`)
+  }
+}
+
+// BOARD CRUD
+const readBoard = (uuid) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    return rooms[uuid].board
+  } else {
+    console.error(`# Couldn't find room ${uuid}`)
+  }
+}
+
+const updateBoard = (uuid, board) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    rooms[uuid].board = board
+    createLog(uuid, `Board from room ${uuid} was updated`)
+  } else {
+    console.error(`# Couldn't find room ${uuid} - updateBoard`)
   }
 }
 
@@ -43,7 +61,7 @@ const createUser = (uuid, userId, username) => {
     rooms[uuid].users.push({ id: userId, username: username })
     createLog(uuid, `User ${userId} joined room with username ${username}`)
   } else {
-    console.error(`# Could find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid}`)
   }
 }
 
@@ -54,10 +72,10 @@ const deleteUser = (uuid, userId) => {
       rooms[uuid].users.splice(userIndex, 1)[0]
       createLog(uuid, `User ${userId} left room`)
     } else {
-      console.error(`# Could find user ${userId}`)
+      console.error(`# Couldn't find user ${userId}`)
     }
   } else {
-    console.error(`# Could find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid}`)
   }
 }
 
@@ -66,7 +84,7 @@ const createLog = (uuid, log) => {
   if (rooms.hasOwnProperty(uuid)) {
     rooms[uuid].log.push({ timestamp: new Date().getTime(), log: log })
   } else {
-    console.error(`# Could find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid}`)
   }
 }
 
@@ -75,6 +93,8 @@ module.exports = {
   createRoom,
   readRoom,
   deleteRoom,
+  readBoard,
+  updateBoard,
   createUser,
   deleteUser
 }

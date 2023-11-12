@@ -1,5 +1,5 @@
 const { Server } = require('socket.io')
-const { createRoom, createUser, deleteUser, readRoom } = require('./rooms')
+const { createRoom, createUser, deleteUser, readRoom, readBoard, updateBoard } = require('./rooms')
 
 module.exports = (server) => {
   const io = new Server(server, {
@@ -31,6 +31,13 @@ module.exports = (server) => {
         deleteUser(data.uuid, socket.id)
         console.log(`# User ${socket.id} left room ${data.uuid}`)
       })
+    })
+
+    // BOARD
+    socket.on('update-board', (data) => {
+      updateBoard(data.uuid, data.board)
+      console.log(`# Board from room ${data.uuid} updated`)
+      io.to(data.uuid).emit('board-updated', { board: readBoard(data.uuid) })
     })
 
     // DISCONNECT
