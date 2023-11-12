@@ -1,5 +1,5 @@
 const { Server } = require('socket.io')
-const { createRoom, createUser, deleteUser } = require('./rooms')
+const { createRoom, createUser, deleteUser, readRoom } = require('./rooms')
 
 module.exports = (server) => {
   const io = new Server(server, {
@@ -24,6 +24,7 @@ module.exports = (server) => {
       createUser(data.uuid, socket.id, data.username)
       socket.join(data.uuid)
       console.log(`# User ${socket.id} (${data.username}) joined room ${data.uuid}`)
+      socket.emit('room-joined', readRoom(data.uuid))
 
       // DISCONNECTING
       socket.on('disconnecting', () => {
