@@ -7,7 +7,10 @@ const createRoom = () => {
   const uuid = uuidv4()
   rooms[uuid] = {
     uuid: uuid,
-    board: [],
+    board: {
+    'rows': 8,
+    'columns': 8
+    },
     factions: [],
     log: [],
     messages: [],
