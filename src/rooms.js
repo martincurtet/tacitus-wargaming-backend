@@ -18,7 +18,7 @@ const createRoom = () => {
       { name: 'Ostea', color: '#00a2e8', icon: 'ostea.png' }
     ],
     log: [],
-    messages: [],
+    messages: [], // { timestamp: '', username: '', message: '' }
     units: [
       { name: 'Spearman', experience: 'Militia', color: '#ed1b24' },
       { name: 'Light Infantry', experience: 'Normal', color: '#ed1b24' },
@@ -86,11 +86,46 @@ const updateFactions = (uuid, factions) => {
   }
 }
 
+// MESSAGE CRUD
+const createMessage = (uuid, username, message) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    rooms[uuid].messages.push({ timestamp: new Date().getTime(), username: username, message: message })
+  } else {
+    console.error(`# Couldn't find room ${uuid}`)
+  }
+}
+
+const readMessages = (uuid) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    return rooms[uuid].messages
+  } else {
+    console.error(`# Couldn't find room ${uuid}`)
+  }
+}
+
+const updateMessages = (uuid, messages) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    rooms[uuid].messages = messages
+    createLog(uuid, `Messages from room ${uuid} were updated`)
+  } else {
+    console.error(`# Couldn't find room ${uuid} - updateBoard`)
+  }
+}
+
 // USER CRUD
 const createUser = (uuid, userId, username) => {
   if (rooms.hasOwnProperty(uuid)) {
     rooms[uuid].users.push({ id: userId, username: username })
     createLog(uuid, `User ${userId} joined room with username ${username}`)
+  } else {
+    console.error(`# Couldn't find room ${uuid}`)
+  }
+}
+
+const readUsername = (uuid, userId) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    const users = rooms[uuid].users
+    return users.find((u) => u.id === userId).username
   } else {
     console.error(`# Couldn't find room ${uuid}`)
   }
@@ -124,10 +159,18 @@ module.exports = {
   createRoom,
   readRoom,
   deleteRoom,
+
   readBoard,
   updateBoard,
+
   createUser,
+  readUsername,
   deleteUser,
+
+  readFactions,
   updateFactions,
-  readFactions
+
+  createMessage,
+  readMessages,
+  updateMessages
 }
