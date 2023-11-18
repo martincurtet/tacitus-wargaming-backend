@@ -12,8 +12,10 @@ const createRoom = () => {
     'columns': 8
     },
     factions: [
-      { name: 'faction1', color: '#ff4b4b' },
-      { name: 'faction2', color: '#004777' }
+      { name: 'Karinia', color: '#ed1b24', icon: 'karinia.png' },
+      { name: 'Crienica', color: '#800040', icon: 'crienica.png' },
+      { name: 'The Confederation Below', color: '#808080', icon: 'confederation.png' },
+      { name: 'Ostea', color: '#00a2e8', icon: 'ostea.png' }
     ],
     log: [],
     messages: [],
@@ -61,6 +63,24 @@ const updateBoard = (uuid, board) => {
   }
 }
 
+// FACTION CRUD
+const readFactions = (uuid) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    return rooms[uuid].factions
+  } else {
+    console.error(`# Couldn't find room ${uuid}`)
+  }
+}
+
+const updateFactions = (uuid, factions) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    rooms[uuid].factions = factions
+    createLog(uuid, `Factions from room ${uuid} were updated`)
+  } else {
+    console.error(`# Couldn't find room ${uuid} - updateBoard`)
+  }
+}
+
 // USER CRUD
 const createUser = (uuid, userId, username) => {
   if (rooms.hasOwnProperty(uuid)) {
@@ -102,5 +122,7 @@ module.exports = {
   readBoard,
   updateBoard,
   createUser,
-  deleteUser
+  deleteUser,
+  updateFactions,
+  readFactions
 }
