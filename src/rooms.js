@@ -11,7 +11,10 @@ const createRoom = () => {
     'rows': 8,
     'columns': 8
     },
-    factions: [],
+    factions: [
+      { name: 'faction1', color: '#ff4b4b' },
+      { name: 'faction2', color: '#004777' }
+    ],
     log: [],
     messages: [],
     units: [],
