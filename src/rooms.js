@@ -19,7 +19,12 @@ const createRoom = () => {
     ],
     log: [],
     messages: [],
-    units: [],
+    units: [
+      { name: 'Spearman', experience: 'Militia', color: '#ed1b24' },
+      { name: 'Light Infantry', experience: 'Normal', color: '#ed1b24' },
+      { name: 'Archer', experience: 'Normal', color: '#00a2e8' },
+      { name: 'Archer', experience: 'Veteran', color: '#00a2e8' }
+    ],
     users: [] // { id: '', username: '' }
   }
   console.log(`# Room ${uuid} created`)
