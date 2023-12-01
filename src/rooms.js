@@ -13,19 +13,20 @@ const createRoom = () => {
     'columns': 8
     },
     factions: [
-      { name: 'Karinia', color: '#ed1b24', icon: 'karinia.png' },
-      { name: 'Crienica', color: '#800040', icon: 'crienica.png' },
-      { name: 'The Confederation Below', color: '#808080', icon: 'confederation.png' },
-      { name: 'Ostea', color: '#00a2e8', icon: 'ostea.png' }
+      { code: 'KAR', name: 'Karinia', color: '#ed1b24', icon: 'karinia.png' },
+      { code: 'CRI', name: 'Crienica', color: '#800040', icon: 'crienica.png' },
+      { code: 'TCB', name: 'The Confederation Below', color: '#808080', icon: 'confederation.png' },
+      { code: 'OST', name: 'Ostea', color: '#00a2e8', icon: 'ostea.png' }
     ],
     log: [],
     messages: [], // { timestamp: '', username: '', message: '' }
     unitShop: unitShop,
     units: [
-      { name: 'Spearman', experience: 'Militia', color: '#ed1b24' },
-      { name: 'Light Infantry', experience: 'Normal', color: '#ed1b24' },
-      { name: 'Archer', experience: 'Normal', color: '#00a2e8' },
-      { name: 'Archer', experience: 'Veteran', color: '#00a2e8' }
+      // { code: 'KAR-SPE-0', name: 'Spearman', veterancy: 'Militia', identifier: '', faction: 'Karinia', men: '20', hdPerMen: '2', maxHd: '40', hd: '40', casualties: '0', fatigue: '0', notes: '' },
+      // { code: 'KAR-INF-1', name: 'Infantry', veterancy: 'Normal', identifier: '', faction: 'Karinia', men: '20', hdPerMen: '2', maxHd: '40', hd: '40', casualties: '0', fatigue: '0', notes: '' },
+      // { code: 'CRI-ARC-1-A', name: 'Archer', veterancy: 'Normal', identifier: 'A', faction: 'Crienica', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' },
+      // { code: 'CRI-ARC-1-B', name: 'Archer', veterancy: 'Normal', identifier: 'B', faction: 'Crienica', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' },
+      // { code: 'CRI-ARC-2', name: 'Archer', veterancy: 'Veteran', identifier: '', faction: 'Crienica', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' }
     ],
     users: [] // { id: '', username: '' }
   }
