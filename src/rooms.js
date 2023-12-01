@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require('uuid')
+const { unitShop } = require('./units')
 
 let rooms = {}
 
@@ -19,6 +20,7 @@ const createRoom = () => {
     ],
     log: [],
     messages: [], // { timestamp: '', username: '', message: '' }
+    unitShop: unitShop,
     units: [
       { name: 'Spearman', experience: 'Militia', color: '#ed1b24' },
       { name: 'Light Infantry', experience: 'Normal', color: '#ed1b24' },
