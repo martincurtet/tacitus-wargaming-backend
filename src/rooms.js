@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid')
-const { unitShop, compareUnits } = require('./units')
+const { unitShop, compareUnits, calculateCasualties } = require('./units')
 const { factionShop } = require('./factions')
 
 let rooms = {}
@@ -168,17 +168,20 @@ const updateUnits = (uuid, units) => {
 const updateUnit = (uuid, unitCode, unitData) => {
   if (rooms.hasOwnProperty(uuid)) {
     let oldUnit = rooms[uuid].units.find(u => u.code === unitCode)
-
-
-    let comparison = compareUnits(oldUnit, unitData)
+    let newUnit = unitData
+    
+    let comparison = compareUnits(oldUnit, newUnit)
     if (comparison === null) {
       console.error(`# Error comparing the two units`)
       return
     }
-
+    newUnit.casualties = calculateCasualties(newUnit.hd, newUnit.maxHd, newUnit.veterancy)
     let unitIndex = rooms[uuid].units.findIndex(u => u.code === unitCode)
-    rooms[uuid].units[unitIndex] = unitData
+    rooms[uuid].units[unitIndex] = newUnit
     createLog(uuid, `Unit ${unitCode} updated ${comparison[0]} from ${comparison[1]} to ${comparison[2]}`)
+    if (oldUnit.casualties !== newUnit.casualties) {
+      createLog(uuid, `Unit ${unitCode} updated casualties from ${oldUnit.casualties} to ${newUnit.casualties}`)
+    }
   } else {
     console.error(`# Couldn't find room ${uuid} - updateBoard`)
   }

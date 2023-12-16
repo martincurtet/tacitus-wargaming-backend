@@ -94,7 +94,7 @@ const unitShop = [
 ]
 
 const compareUnits = (unit1, unit2) => {
-  const modifiedProperties = ['hd', 'casualties', 'fatigue', 'notes']
+  const modifiedProperties = ['hd', 'fatigue', 'notes']
   let modifiedPropertyCount = 0
   let modifiedProperty = ''
 
@@ -114,8 +114,24 @@ const compareUnits = (unit1, unit2) => {
   }
 }
 
+const calculateCasualties = (hd, maxHd, veterancy) => {
+  let casualties = 0
+  if (hd >= maxHd / 2) return casualties
+  let hdBelowHalf = maxHd / 2 - hd
+  if (veterancy === '0') {
+    casualties = Math.floor(hdBelowHalf)
+  } else if (veterancy === '1') {
+    casualties = Math.floor(hdBelowHalf / 2)
+  } else if (veterancy === '2') {
+    casualties = Math.floor(hdBelowHalf / 3)
+  } else if (veterancy === '3') {
+    casualties = Math.floor(hdBelowHalf / 5)
+  }
+  return casualties
+}
 
 module.exports = {
   unitShop,
-  compareUnits
+  compareUnits,
+  calculateCasualties
 }
