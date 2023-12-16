@@ -19,7 +19,8 @@ const createRoom = () => {
     // 'D7': { unit: 'CRI-ARC-1-B' },
     // 'C8': { unit: 'CRI-ARC-2' },
     },
-    factions: factionShop,
+    factionShop: factionShop,
+    factions: [],
     log: [],
     messages: [], // { timestamp: '', username: '', message: '' }
     unitShop: unitShop,
