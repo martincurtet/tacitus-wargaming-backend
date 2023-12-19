@@ -31,7 +31,7 @@ const unitShop = [
   {
     code: 'NLINF',
     hdPerMen: '2',
-    icon: 'infantry.png',
+    icon: 'Light_Infantry_1.png',
     name: 'Normal Light Infantry',
     veterancy: '1'
   },
@@ -45,14 +45,14 @@ const unitShop = [
   {
     code: 'VMINF',
     hdPerMen: '3',
-    icon: 'infantry.png',
+    icon: 'Medium_Infantry_1.png',
     name: 'Veteran Medium Infantry',
     veterancy: '2'
   },
   {
     code: 'VHINF',
     hdPerMen: '3',
-    icon: 'infantry.png',
+    icon: 'Heavy_Infantry_1.png',
     name: 'Veteran Heavy Infantry',
     veterancy: '2'
   },
@@ -73,7 +73,7 @@ const unitShop = [
   {
     code: 'EHINF',
     hdPerMen: '5',
-    icon: 'infantry.png',
+    icon: 'Heavy_Infantry_1.png',
     name: 'Elite Heavy Infantry',
     veterancy: '3'
   },

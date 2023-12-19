@@ -10,8 +10,8 @@ const createRoom = () => {
   rooms[uuid] = {
     uuid: uuid,
     board: {
-    'rows': 8,
-    'columns': 8,
+    'rows': 12,
+    'columns': 12,
     'drop-zone': [],
     // 'C2': { unit: 'KAR-SPE-0' },
     // 'D2': { unit: 'KAR-INF-1' },
@@ -20,7 +20,12 @@ const createRoom = () => {
     // 'C8': { unit: 'CRI-ARC-2' },
     },
     factionShop: factionShop,
-    factions: [],
+    factions: [{
+      code: 'KAR',
+      color: '#ed1b24',
+      icon: 'karinia.png',
+      name: 'Karinia'
+    }],
     log: [],
     messages: [], // { timestamp: '', username: '', message: '' }
     unitShop: unitShop,
@@ -169,18 +174,18 @@ const updateUnit = (uuid, unitCode, unitData) => {
   if (rooms.hasOwnProperty(uuid)) {
     let oldUnit = rooms[uuid].units.find(u => u.code === unitCode)
     let newUnit = unitData
-    
+
     let comparison = compareUnits(oldUnit, newUnit)
     if (comparison === null) {
       console.error(`# Error comparing the two units`)
-      return
-    }
-    newUnit.casualties = calculateCasualties(newUnit.hd, newUnit.maxHd, newUnit.veterancy)
-    let unitIndex = rooms[uuid].units.findIndex(u => u.code === unitCode)
-    rooms[uuid].units[unitIndex] = newUnit
-    createLog(uuid, `Unit ${unitCode} updated ${comparison[0]} from ${comparison[1]} to ${comparison[2]}`)
-    if (oldUnit.casualties !== newUnit.casualties) {
-      createLog(uuid, `Unit ${unitCode} updated casualties from ${oldUnit.casualties} to ${newUnit.casualties}`)
+    } else {
+      newUnit.casualties = calculateCasualties(newUnit.hd, newUnit.maxHd, newUnit.veterancy).toString()
+      let unitIndex = rooms[uuid].units.findIndex(u => u.code === unitCode)
+      rooms[uuid].units[unitIndex] = newUnit
+      createLog(uuid, `Unit ${unitCode} updated ${comparison[0]} from ${comparison[1]} to ${comparison[2]}`)
+      if (oldUnit.casualties !== newUnit.casualties) {
+        createLog(uuid, `Unit ${unitCode} updated casualties from ${oldUnit.casualties} to ${newUnit.casualties}`)
+      }
     }
   } else {
     console.error(`# Couldn't find room ${uuid} - updateBoard`)
