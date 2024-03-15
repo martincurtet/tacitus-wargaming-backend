@@ -10,21 +10,21 @@ const unitShop = [
   {
     code: 'MSPR',
     hdPerMen: '1',
-    icon: 'spearman.png',
+    icon: 'Peasant_spear_1.png',
     name: 'Militia Spearman',
     veterancy: '0'
   },
   {
     code: 'MBOM',
     hdPerMen: '1',
-    icon: 'infantry.png',
+    icon: 'Band_of_misfits_1.png',
     name: 'Militia Band of Misfits',
     veterancy: '0'
   },
   {
     code: 'NDWLN',
     hdPerMen: '2',
-    icon: 'infantry.png',
+    icon: 'Dwarf_longbeard_1.png',
     name: 'Normal Dwarfen Longbeard',
     veterancy: '1'
   },
@@ -38,7 +38,7 @@ const unitShop = [
   {
     code: 'NJINF',
     hdPerMen: '2',
-    icon: 'infantry.png',
+    icon: 'Javelin_1.png',
     name: 'Normal Javelin Infantry',
     veterancy: '1'
   },
@@ -80,14 +80,14 @@ const unitShop = [
   {
     code: 'VPATH',
     hdPerMen: '3',
-    icon: 'spearman.png',
+    icon: 'Pathfinder_1.png',
     name: 'Veteran Pathfinder',
     veterancy: '2'
   },
   {
     code: 'VDROW',
     hdPerMen: '3',
-    icon: 'infantry.png',
+    icon: 'Drow_sapper_1.png',
     name: 'Veteran Drow Sappers',
     veterancy: '2'
   },
@@ -101,7 +101,7 @@ const unitShop = [
   {
     code: 'NDWAQ',
     hdPerMen: '2',
-    icon: 'infantry.png',
+    icon: 'Dwarf_crossbow_1.png',
     name: 'Normal Dwarven Quarreler',
     veterancy: '1'
   },
@@ -143,7 +143,7 @@ const unitShop = [
   {
     code: 'EKICA',
     hdPerMen: '5',
-    icon: 'cavalry.png',
+    icon: 'Heavy_cavalry_2.png',
     name: 'Elite Kingsguard Cavalry',
     veterancy: '3'
   },
@@ -164,7 +164,7 @@ const unitShop = [
   {
     code: 'EWYVR',
     hdPerMen: '9',
-    icon: 'archer.png',
+    icon: 'Wyvern_rider_1.png',
     name: 'Elite Wyvern Rider',
     veterancy: '3'
   },
@@ -178,35 +178,35 @@ const unitShop = [
   {
     code: 'VMIM',
     hdPerMen: '3',
-    icon: 'cavalry.png',
+    icon: 'Medium_infantry_1.png',
     name: 'Veteran Medium Infantry, Mounted',
     veterancy: '2'
   },
   {
     code: 'NDRET',
     hdPerMen: '4',
-    icon: 'cavalry.png',
+    icon: 'Dretch_1.png',
     name: 'Normal Dretch',
     veterancy: '1'
   },
   {
     code: 'VMAWD',
     hdPerMen: '6',
-    icon: 'cavalry.png',
+    icon: 'Maw_demon_1.png',
     name: 'Veteran Maw Demon',
     veterancy: '2'
   },
   {
     code: 'VHIW5',
     hdPerMen: '3',
-    icon: 'infantry.png',
+    icon: 'Wizard_heavy_infantry_1.png',
     name: 'Veteran Heavy Infantry (with lvl5 wizard)',
     veterancy: '2'
   },
   {
     code: 'NWTD6',
     hdPerMen: '2',
-    icon: 'infantry.png',
+    icon: 'Wolf_tamer_1.png',
     name: 'Normal Wolf Tamer (with lvl6 druid)',
     veterancy: '1'
   },
@@ -220,77 +220,77 @@ const unitShop = [
   {
     code: 'VWIZ4',
     hdPerMen: '4',
-    icon: 'Wizard_1.png',
+    icon: 'Wizard_2.png',
     name: 'Veteran Wizards',
     veterancy: '2'
   },
   {
     code: 'NORC2',
     hdPerMen: '2',
-    icon: 'Wizard_1.png',
+    icon: 'Rouge_cleric_1.png',
     name: 'Normal Order of Rouge Clerics',
     veterancy: '1'
   },
   {
     code: 'EAMC6',
     hdPerMen: '6',
-    icon: 'Wizard_1.png',
+    icon: 'Amaunator_cleric_1.png',
     name: 'Elite Amaunator Clerics',
     veterancy: '3'
   },
   {
     code: 'VABW4',
     hdPerMen: '4',
-    icon: 'Wizard_1.png',
+    icon: 'Flying_wizard_1.png',
     name: 'Veteran Airborne Wizards',
     veterancy: '2'
   },
   {
     code: 'VGLB3',
     hdPerMen: '3',
-    icon: 'Wizard_1.png',
+    icon: 'Glamour_bard_1.png',
     name: 'Veteran Glamour Bards',
     veterancy: '2'
   },
   {
     code: 'VORC3',
     hdPerMen: '3',
-    icon: 'Wizard_1.png',
+    icon: 'Rouge_cleric_2.png',
     name: 'Veteran Order of Rouge Clerics',
     veterancy: '2'
   },
   {
     code: 'EMOW5',
     hdPerMen: '5',
-    icon: 'cavalry.png',
+    icon: 'Mounted_wizard_1.png',
     name: 'Elite Mounted Wizards',
     veterancy: '3'
   },
   {
     code: 'NWMD2',
     hdPerMen: '2',
-    icon: 'cavalry.png',
+    icon: 'Mounted_wizard_2.png',
     name: 'Normal Wizard Mounted Dropouts',
     veterancy: '1'
   },
   {
     code: 'EABW5',
     hdPerMen: '5',
-    icon: 'cavalry.png',
+    icon: 'Flying_wizard_2.png',
     name: 'Elite Airborne Wizards',
     veterancy: '3'
   },
   {
     code: 'EAMP3',
     hdPerMen: '3',
-    icon: 'cavalry.png',
+    icon: 'Amaunator_paladin_1.png',
     name: 'Elite Amaunator Paladins',
     veterancy: '3'
   },
   {
     code: 'VFEW3',
     hdPerMen: '3',
-    icon: 'cavalry.png',
+    icon: 'Fey_warlock_1.png',
     name: 'Veteran Fey Warlocks',
     veterancy: '2'
   }
