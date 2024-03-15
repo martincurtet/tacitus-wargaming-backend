@@ -20,12 +20,13 @@ const createRoom = () => {
     // 'C8': { unit: 'CRI-ARC-2' },
     },
     factionShop: factionShop,
-    factions: [{
-      code: 'KAR',
-      color: '#ed1b24',
-      icon: 'karinia.png',
-      name: 'Karinia'
-    }],
+    factions: [],
+    // factions: [{
+    //   code: 'KAR',
+    //   color: '#ed1b24',
+    //   icon: 'karinia.png',
+    //   name: 'Karinia'
+    // }],
     log: [],
     messages: [], // { timestamp: '', username: '', message: '' }
     unitShop: unitShop,
@@ -104,7 +105,22 @@ const updateBoardSize = (uuid, newRows, newColumns) => {
     rooms[uuid].board['columns'] = newColumns
     createLog(uuid, `Board size updated from r:${oldRows}, c:${oldColumns} to r:${newRows}, c:${newColumns}`)
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoard`)
+    console.error(`# Couldn't find room ${uuid} - updateBoardSize`)
+  }
+}
+
+const updateBoardTerrain = (uuid, terrain, zone) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    // zone is list of cells, need to paint the terrain
+    // get board, add rules
+    let tempBoard = rooms[uuid].board
+    zone.forEach(cell => {
+      tempBoard[cell] = { ...tempBoard[cell], terrain: terrain }
+    })
+    rooms[uuid].board = tempBoard
+    createLog(uuid, `Board terrain updated with: ${terrain} on zone ${zone}`)
+  } else {
+    console.error(`# Couldn't find room ${uuid} - updateBoardSize`)
   }
 }
 
@@ -255,6 +271,7 @@ module.exports = {
   readBoardColumns,
   updateBoard,
   updateBoardSize,
+  updateBoardTerrain,
 
   createUser,
   readUsername,
