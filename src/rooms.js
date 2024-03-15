@@ -118,7 +118,31 @@ const updateBoardTerrain = (uuid, terrain, zone) => {
       tempBoard[cell] = { ...tempBoard[cell], terrain: terrain }
     })
     rooms[uuid].board = tempBoard
-    createLog(uuid, `Board terrain updated with: ${terrain} on zone ${zone}`)
+    createLog(uuid, `Board terrain updated with ${terrain} terrain on zone: ${zone}`)
+  } else {
+    console.error(`# Couldn't find room ${uuid} - updateBoardSize`)
+  }
+}
+
+const updateBoardUnit = (uuid, unitCode, startingCell, droppingCell) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    let tempBoard = rooms[uuid].board
+    // case 1 from drop-zone to cell
+    if (startingCell === 'drop-zone') {
+      tempBoard[droppingCell] = { ...tempBoard[droppingCell], unit: unitCode }
+      tempBoard['drop-zone'].splice(tempBoard['drop-zone'].indexOf(unitCode, 1))
+    }
+    // case 2 from cell to drop-zone
+    else if (droppingCell === 'drop-zone') {
+      tempBoard['drop-zone'].push(unitCode)
+      delete tempBoard[startingCell].unit
+    }
+    // case 3 from cell to cell
+    else {
+      tempBoard[droppingCell] = { ...tempBoard[droppingCell], unit: unitCode }
+      delete tempBoard[startingCell].unit
+    }
+    createLog(uuid, `Unit ${unitCode} moved from ${startingCell} to ${droppingCell}`)
   } else {
     console.error(`# Couldn't find room ${uuid} - updateBoardSize`)
   }
@@ -272,6 +296,7 @@ module.exports = {
   updateBoard,
   updateBoardSize,
   updateBoardTerrain,
+  updateBoardUnit,
 
   createUser,
   readUsername,

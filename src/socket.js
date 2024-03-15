@@ -19,7 +19,8 @@ const {
   updateUnits,
   updateUnit,
   readLog,
-  updateBoardTerrain
+  updateBoardTerrain,
+  updateBoardUnit
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -73,6 +74,11 @@ module.exports = (server) => {
       // indicate wich terrain and cell zone (single, line, square)
       updateBoardTerrain(data.uuid, data.terrain, data.zone)
       io.to(data.uuid).emit('board-terrain-updated', { board: readBoard(data.uuid), log: readLog(data.uuid) })
+    })
+
+    socket.on('update-board-unit', (data) => {
+      updateBoardUnit(data.uuid, data.unitCode, data.startingCell, data.droppingCell)
+      io.to(data.uuid).emit('board-unit-updated', { board: readBoard(data.uuid), log: readLog(data.uuid) })
     })
 
     // FACTIONS
