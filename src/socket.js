@@ -20,7 +20,8 @@ const {
   updateUnit,
   readLog,
   updateBoardTerrain,
-  updateBoardUnit
+  updateBoardUnit,
+  updateFactionsUnits
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -96,13 +97,19 @@ module.exports = (server) => {
     // UNITS
     socket.on('update-units', (data) => {
       updateUnits(data.uuid, data.units)
-      io.to(data.uuid).emit('units-updated', { units: data.units, board: readBoard(data.uuid), log: readLog(data.uuid) })
+      io.to(data.uuid).emit('units-updated', { units: readUnits(data.uuid), board: readBoard(data.uuid), log: readLog(data.uuid) })
     })
 
     socket.on('update-unit', (data) => {
       // for unit hd, casualties, fatigue, notes
       updateUnit(data.uuid, data.unitCode, data.unitData)
       io.to(data.uuid).emit('unit-updated', { units: readUnits(data.uuid), log: readLog(data.uuid) })
+    })
+
+    // UNIT MANAGER SUBMIT
+    socket.on('update-factions-units', (data) => {
+      updateFactionsUnits(data.uuid, data.factions, data.units)
+      io.to(data.uuid).emit('factions-units-updated', { factions: readFactions(data.uuid), units: readUnits(data.uuid), board: readBoard(data.uuid), log: readLog(data.uuid) })
     })
 
     // DISCONNECT

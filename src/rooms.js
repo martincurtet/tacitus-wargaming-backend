@@ -130,7 +130,7 @@ const updateBoardUnit = (uuid, unitCode, startingCell, droppingCell) => {
     // case 1 from drop-zone to cell
     if (startingCell === 'drop-zone') {
       tempBoard[droppingCell] = { ...tempBoard[droppingCell], unit: unitCode }
-      tempBoard['drop-zone'].splice(tempBoard['drop-zone'].indexOf(unitCode, 1))
+      tempBoard['drop-zone'].splice(tempBoard['drop-zone'].indexOf(unitCode), 1)
     }
     // case 2 from cell to drop-zone
     else if (droppingCell === 'drop-zone') {
@@ -284,6 +284,20 @@ const createLog = (uuid, log) => {
   }
 }
 
+// UNIT MANAGER
+const updateFactionsUnits = (uuid, factions, units) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    rooms[uuid].factions = factions
+    rooms[uuid].units = units
+    units.map((u) => {
+      rooms[uuid].board['drop-zone'].push(u.code)
+    })
+    createLog(uuid, `Factions, Units and Board updated`)
+  } else {
+    console.error(`# Couldn't find room ${uuid} - updateBoard`)
+  }
+}
+
 module.exports = {
   rooms,
   createRoom,
@@ -313,5 +327,7 @@ module.exports = {
   updateUnits,
   updateUnit,
 
-  readLog
+  readLog,
+
+  updateFactionsUnits
 }
