@@ -169,13 +169,6 @@ const unitShop = [
     veterancy: '3'
   },
   {
-    code: 'EYSD',
-    hdPerMen: '29',
-    icon: 'archer.png',
-    name: 'Elite Young Sapphire Dragon',
-    veterancy: '3'
-  },
-  {
     code: 'VMIM',
     hdPerMen: '3',
     icon: 'Medium_infantry_1.png',
