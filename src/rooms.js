@@ -222,9 +222,10 @@ const updateUnit = (uuid, unitCode, unitData) => {
       newUnit.casualties = calculateCasualties(newUnit.hd, newUnit.maxHd, newUnit.veterancy).toString()
       let unitIndex = rooms[uuid].units.findIndex(u => u.code === unitCode)
       rooms[uuid].units[unitIndex] = newUnit
-      createLog(uuid, `Unit ${unitCode} updated ${comparison[0]} from ${comparison[1]} to ${comparison[2]}`)
       if (oldUnit.casualties !== newUnit.casualties) {
-        createLog(uuid, `Unit ${unitCode} updated casualties from ${oldUnit.casualties} to ${newUnit.casualties}`)
+        createLog(uuid, `Unit ${unitCode} updated ${comparison[0]} from ${comparison[1]} to ${comparison[2]} and casualties from ${oldUnit.casualties} to ${newUnit.casualties}`)
+      } else {
+        createLog(uuid, `Unit ${unitCode} updated ${comparison[0]} from ${comparison[1]} to ${comparison[2]}`)
       }
     }
   } else {
