@@ -48,7 +48,7 @@ const readRoom = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
     return rooms[uuid]
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - readRoom`)
   }
 }
 
@@ -59,7 +59,7 @@ const deleteRoom = (uuid) => {
     delete rooms[uuid]
     // console.log(`# Room ${uuid} deleted`)
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - deleteRoom`)
   }
 }
 
@@ -68,7 +68,7 @@ const readBoard = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
     return rooms[uuid].board
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - readBoard`)
   }
 }
 
@@ -76,7 +76,7 @@ const readBoardRows = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
     return rooms[uuid].board['rows']
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoard`)
+    console.error(`# Couldn't find room ${uuid} - readBoardRows`)
   }
 }
 
@@ -84,7 +84,7 @@ const readBoardColumns = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
     return rooms[uuid].board['columns']
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoard`)
+    console.error(`# Couldn't find room ${uuid} - readBoardColumns`)
   }
 }
 
@@ -120,7 +120,7 @@ const updateBoardTerrain = (uuid, terrain, zone) => {
     rooms[uuid].board = tempBoard
     createLog(uuid, `Board terrain updated with ${terrain} terrain on zone: ${zone}`)
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoardSize`)
+    console.error(`# Couldn't find room ${uuid} - updateBoardTerrain`)
   }
 }
 
@@ -144,7 +144,7 @@ const updateBoardUnit = (uuid, unitCode, startingCell, droppingCell) => {
     }
     createLog(uuid, `Unit ${unitCode} moved from ${startingCell} to ${droppingCell}`)
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoardSize`)
+    console.error(`# Couldn't find room ${uuid} - updateBoardUnit`)
   }
 }
 
@@ -153,7 +153,7 @@ const readFactions = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
     return rooms[uuid].factions
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - readFactions`)
   }
 }
 
@@ -162,7 +162,7 @@ const updateFactions = (uuid, factions) => {
     rooms[uuid].factions = factions
     createLog(uuid, `Factions updated`)
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoard`)
+    console.error(`# Couldn't find room ${uuid} - updateFactions`)
   }
 }
 
@@ -171,7 +171,7 @@ const createMessage = (uuid, username, message) => {
   if (rooms.hasOwnProperty(uuid)) {
     rooms[uuid].messages.push({ timestamp: new Date().getTime(), username: username, message: message })
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - createMessage`)
   }
 }
 
@@ -179,7 +179,7 @@ const readMessages = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
     return rooms[uuid].messages
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - readMessages`)
   }
 }
 
@@ -188,7 +188,7 @@ const updateMessages = (uuid, messages) => {
     rooms[uuid].messages = messages
     createLog(uuid, `Messages updated`)
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoard`)
+    console.error(`# Couldn't find room ${uuid} - updateMessages`)
   }
 }
 
@@ -197,7 +197,7 @@ const readUnits = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
     return rooms[uuid].units
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - readUnits`)
   }
 }
 
@@ -206,7 +206,7 @@ const updateUnits = (uuid, units) => {
     rooms[uuid].units = units
     createLog(uuid, `Units updated`)
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoard`)
+    console.error(`# Couldn't find room ${uuid} - updateUnits`)
   }
 }
 
@@ -229,7 +229,7 @@ const updateUnit = (uuid, unitCode, unitData) => {
       }
     }
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoard`)
+    console.error(`# Couldn't find room ${uuid} - updateUnit`)
   }
 }
 
@@ -239,7 +239,7 @@ const createUser = (uuid, userId, username) => {
     rooms[uuid].users.push({ id: userId, username: username })
     createLog(uuid, `User ${userId} (${username}) joined`)
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - createUser`)
   }
 }
 
@@ -248,7 +248,7 @@ const readUsername = (uuid, userId) => {
     const users = rooms[uuid].users
     return users.find((u) => u.id === userId).username
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - readUsername`)
   }
 }
 
@@ -263,7 +263,7 @@ const deleteUser = (uuid, userId) => {
       console.error(`# Couldn't find user ${userId}`)
     }
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - deleteUser`)
   }
 }
 
@@ -272,7 +272,7 @@ const readLog = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
     return rooms[uuid].log
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - readLog`)
   }
 }
 
@@ -281,7 +281,7 @@ const createLog = (uuid, log) => {
     rooms[uuid].log.push({ timestamp: new Date().getTime(), log: log })
     console.log(`[${uuid}] ${log}`)
   } else {
-    console.error(`# Couldn't find room ${uuid}`)
+    console.error(`# Couldn't find room ${uuid} - createLog`)
   }
 }
 
@@ -295,7 +295,7 @@ const updateFactionsUnits = (uuid, factions, units) => {
     })
     createLog(uuid, `Factions, Units and Board updated`)
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoard`)
+    console.error(`# Couldn't find room ${uuid} - updateFactionsUnits`)
   }
 }
 
