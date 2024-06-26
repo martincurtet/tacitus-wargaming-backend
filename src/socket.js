@@ -36,9 +36,15 @@ module.exports = (server) => {
     console.info(`# User ${socket.id} connected`)
 
     // CREATE ROOM
-    socket.on('create-room', () => {
-      const uuid = createRoom()
-      socket.emit('room-created', { uuid: uuid })
+    socket.on('create-room', (data) => {
+      let username = data.username
+      if (/^[a-zA-Z0-9]*$/.test(username) && username !== '') {
+        const uuid = createRoom(socket.id)
+        createUser(uuid, socket.id, username)
+        socket.join(uuid)
+        createMessage(uuid, `System`, `${username} joined`)
+        socket.emit('room-created', { uuid: uuid, username: username })
+      }
     })
 
     // JOIN ROOM

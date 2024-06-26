@@ -5,10 +5,11 @@ const { factionShop } = require('./factions')
 let rooms = {}
 
 // ROOM CRUD
-const createRoom = () => {
+const createRoom = (socketId) => {
   const uuid = uuidv4()
   rooms[uuid] = {
     uuid: uuid,
+    host: socketId,
     board: {
     'rows': 12,
     'columns': 12,
@@ -40,7 +41,7 @@ const createRoom = () => {
     users: [] // { id: '', username: '' }
   }
   // console.log(`# Room ${uuid} created`)
-  createLog(uuid, `Room created`)
+  createLog(uuid, `Room created by user ${socketId}`)
   return uuid
 }
 
