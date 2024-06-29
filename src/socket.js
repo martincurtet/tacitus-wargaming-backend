@@ -21,7 +21,9 @@ const {
   readLog,
   updateBoardTerrain,
   updateBoardUnit,
-  updateFactionsUnits
+  updateFactionsUnits,
+  readRoomHost,
+  readUserUuid
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -33,34 +35,52 @@ module.exports = (server) => {
 
   // CONNECTION
   io.on('connection', (socket) => {
-    console.info(`# User ${socket.id} connected`)
+    console.info(`# Connection ${socket.id} established`)
 
     // CREATE ROOM
     socket.on('create-room', (data) => {
+      // data: { username }
       let username = data.username
       if (/^[a-zA-Z0-9]*$/.test(username) && username !== '') {
-        const uuid = createRoom(socket.id)
-        createUser(uuid, socket.id, username)
-        socket.join(uuid)
-        createMessage(uuid, `System`, `${username} joined`)
-        socket.emit('room-created', { uuid: uuid, username: username })
+        const [roomUuid, userUuid] = createRoom(username, socket.id)
+        socket.emit('room-created', { roomUuid: roomUuid, userUuid: userUuid, username: username, userColor: '#000000', isUserHost: 'true' })
       }
     })
 
     // JOIN ROOM
-    // uuid, username
     socket.on('join-room', (data) => {
-      createUser(data.uuid, socket.id, data.username)
-      socket.join(data.uuid)
-      createMessage(data.uuid, `System`, `${data.username} joined`)
-      socket.emit('room-joined', readRoom(data.uuid))
-      io.to(data.uuid).emit('message-sent', { messages: readMessages(data.uuid), log: readLog(data.uuid) })
+      // data: { roomUuid, userUuid, username }
+      let userUuid = ''
+      let isUserHost = false
+      if (data.userUuid === '') {
+        // New Player
+        userUuid = createUser(data.roomUuid, socket.id, data.username)
+      } else {
+        // Existing Player
+        if (readUserUuid(data.roomUuid, data.userUuid) === undefined) {
+          console.log('user not found')
+        } else {
+          console.log('user found')
+          userUuid = readUserUuid(data.roomUuid, data.userUuid)
+        }
+      }
+      // Load Room Data
+      socket.join(data.roomUuid)
+      let mergedData = {
+        ...readRoom(data.roomUuid),
+        userUuid: userUuid,
+        username: data.username,
+        userColor: '#000000',
+        isUserHost: isUserHost
+      }
+      socket.emit('room-joined', mergedData)
+      io.to(data.roomUuid).emit('message-sent', { messages: readMessages(data.roomUuid), log: readLog(data.roomUuid) })
 
       // DISCONNECTING
       socket.on('disconnecting', () => {
-        deleteUser(data.uuid, socket.id)
-        createMessage(data.uuid, `System`, `${data.username} left`)
-        io.to(data.uuid).emit('message-sent', { messages: readMessages(data.uuid), log: readLog(data.uuid) })
+        deleteUser(data.roomUuid, userUuid)
+        createMessage(data.roomUuid, `System`, `${data.username} left`)
+        io.to(data.roomUuid).emit('message-sent', { messages: readMessages(data.roomUuid), log: readLog(data.roomUuid) })
       })
     })
 
