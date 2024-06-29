@@ -54,13 +54,12 @@ module.exports = (server) => {
       let isUserHost = false
       if (data.userUuid === '') {
         // New Player
+        console.log('new player joining')
         userUuid = createUser(data.roomUuid, socket.id, data.username)
       } else {
         // Existing Player
         if (readUserUuid(data.roomUuid, data.userUuid) === undefined) {
-          console.log('user not found')
         } else {
-          console.log('user found')
           userUuid = readUserUuid(data.roomUuid, data.userUuid)
         }
       }
@@ -74,11 +73,13 @@ module.exports = (server) => {
         isUserHost: isUserHost
       }
       socket.emit('room-joined', mergedData)
+      createMessage(data.roomUuid, `System`, `${data.username} joined`)
       io.to(data.roomUuid).emit('message-sent', { messages: readMessages(data.roomUuid), log: readLog(data.roomUuid) })
 
       // DISCONNECTING
       socket.on('disconnecting', () => {
-        deleteUser(data.roomUuid, userUuid)
+        // don't delete, put disconnected or something
+        // deleteUser(data.roomUuid, userUuid)
         createMessage(data.roomUuid, `System`, `${data.username} left`)
         io.to(data.roomUuid).emit('message-sent', { messages: readMessages(data.roomUuid), log: readLog(data.roomUuid) })
       })

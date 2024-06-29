@@ -65,6 +65,7 @@ const createRoom = (username, socketId) => {
   }
   // console.log(`# Room ${uuid} created`)
   createLog(roomUuid, `Room created`)
+  createLog(roomUuid, `User ${userUuid} (${username}) joined`)
   return [roomUuid, userUuid]
 }
 
