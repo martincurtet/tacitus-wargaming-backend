@@ -4,51 +4,84 @@ const { factionShop } = require('./factions')
 
 let rooms = {}
 
+// EXAMPLE ROOM
+let exampleRoom = {
+  uuid: 'uuid',
+  hostUuid: '',
+  board: {
+  'rows': 12,
+  'columns': 12,
+  'drop-zone': [],
+  // 'C2': { unit: 'KAR-SPE-0' },
+  // 'D2': { unit: 'KAR-INF-1' },
+  // 'B7': { unit: 'CRI-ARC-1-A' },
+  // 'D7': { unit: 'CRI-ARC-1-B' },
+  // 'C8': { unit: 'CRI-ARC-2' },
+  },
+  factionShop: factionShop,
+  factions: [],
+  // factions: [{
+  //   code: 'KAR',
+  //   color: '#ed1b24',
+  //   icon: 'karinia.png',
+  //   name: 'Karinia'
+  // }],
+  log: [],
+  messages: [], // { timestamp: '', username: '', message: '' }
+  unitShop: unitShop,
+  units: [
+    // { code: 'KAR-SPE-0', name: 'Spearman', veterancy: '0', identifier: '', faction: 'Karinia', icon: 'spearman.png', men: '20', hdPerMen: '2', maxHd: '40', hd: '40', casualties: '0', fatigue: '0', notes: '' },
+    // { code: 'KAR-INF-1', name: 'Infantry', veterancy: '1', identifier: '', faction: 'Karinia', icon: 'infantry.png', men: '20', hdPerMen: '2', maxHd: '40', hd: '40', casualties: '0', fatigue: '0', notes: '' },
+    // { code: 'CRI-ARC-1-A', name: 'Archer', veterancy: '1', identifier: 'A', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' },
+    // { code: 'CRI-ARC-1-B', name: 'Archer', veterancy: '1', identifier: 'B', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' },
+    // { code: 'CRI-ARC-2', name: 'Archer', veterancy: '2', identifier: '', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' }
+  ],
+  users: [] // { userUuid: '', username: '', currentSocketId: '' }
+}
+
 // ROOM CRUD
-const createRoom = () => {
-  const uuid = uuidv4()
-  rooms[uuid] = {
-    uuid: uuid,
+const createRoom = (username, socketId) => {
+  const roomUuid = uuidv4()
+  const userUuid = uuidv4()
+  rooms[roomUuid] = {
+    uuid: roomUuid,
+    hostUuid: userUuid,
     board: {
     'rows': 12,
     'columns': 12,
     'drop-zone': [],
-    // 'C2': { unit: 'KAR-SPE-0' },
-    // 'D2': { unit: 'KAR-INF-1' },
-    // 'B7': { unit: 'CRI-ARC-1-A' },
-    // 'D7': { unit: 'CRI-ARC-1-B' },
-    // 'C8': { unit: 'CRI-ARC-2' },
     },
     factionShop: factionShop,
     factions: [],
-    // factions: [{
-    //   code: 'KAR',
-    //   color: '#ed1b24',
-    //   icon: 'karinia.png',
-    //   name: 'Karinia'
-    // }],
     log: [],
-    messages: [], // { timestamp: '', username: '', message: '' }
+    messages: [],
     unitShop: unitShop,
-    units: [
-      // { code: 'KAR-SPE-0', name: 'Spearman', veterancy: '0', identifier: '', faction: 'Karinia', icon: 'spearman.png', men: '20', hdPerMen: '2', maxHd: '40', hd: '40', casualties: '0', fatigue: '0', notes: '' },
-      // { code: 'KAR-INF-1', name: 'Infantry', veterancy: '1', identifier: '', faction: 'Karinia', icon: 'infantry.png', men: '20', hdPerMen: '2', maxHd: '40', hd: '40', casualties: '0', fatigue: '0', notes: '' },
-      // { code: 'CRI-ARC-1-A', name: 'Archer', veterancy: '1', identifier: 'A', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' },
-      // { code: 'CRI-ARC-1-B', name: 'Archer', veterancy: '1', identifier: 'B', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' },
-      // { code: 'CRI-ARC-2', name: 'Archer', veterancy: '2', identifier: '', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' }
-    ],
-    users: [] // { id: '', username: '' }
+    units: [],
+    users: [{
+      userUuid: userUuid,
+      username: username,
+      currentSocketId: socketId
+    }]
   }
   // console.log(`# Room ${uuid} created`)
-  createLog(uuid, `Room created`)
-  return uuid
+  createLog(roomUuid, `Room created`)
+  createLog(roomUuid, `User ${userUuid} (${username}) joined`)
+  return [roomUuid, userUuid]
 }
 
-const readRoom = (uuid) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    return rooms[uuid]
+const readRoom = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    return rooms[roomUuid]
   } else {
-    console.error(`# Couldn't find room ${uuid} - readRoom`)
+    console.error(`# Couldn't find room ${roomUuid} - readRoom`)
+  }
+}
+
+const readRoomHost = (uuid) => {
+  if (rooms.hasOwnProperty(uuid)) {
+    return rooms[uuid].host
+  } else {
+    console.error(`# Couldn't find room ${uuid} - readRoomHost`)
   }
 }
 
@@ -175,11 +208,11 @@ const createMessage = (uuid, username, message) => {
   }
 }
 
-const readMessages = (uuid) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    return rooms[uuid].messages
+const readMessages = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    return rooms[roomUuid].messages
   } else {
-    console.error(`# Couldn't find room ${uuid} - readMessages`)
+    console.error(`# Couldn't find room ${roomUuid} - readMessages`)
   }
 }
 
@@ -234,12 +267,14 @@ const updateUnit = (uuid, unitCode, unitData) => {
 }
 
 // USER CRUD
-const createUser = (uuid, userId, username) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    rooms[uuid].users.push({ id: userId, username: username })
-    createLog(uuid, `User ${userId} (${username}) joined`)
+const createUser = (roomUuid, socketId, username) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    let userUuid = uuidv4()
+    rooms[roomUuid].users.push({ userUuid: userUuid, username: username, currentSocketId: socketId })
+    createLog(roomUuid, `User ${userUuid} (${username}) joined`)
+    return userUuid
   } else {
-    console.error(`# Couldn't find room ${uuid} - createUser`)
+    console.error(`# Couldn't find room ${roomUuid} - createUser`)
   }
 }
 
@@ -252,27 +287,36 @@ const readUsername = (uuid, userId) => {
   }
 }
 
-const deleteUser = (uuid, userId) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    const userIndex = rooms[uuid].users.findIndex(u => u.id === userId)
+const readUserUuid = (roomUuid, userUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const users = rooms[roomUuid].users
+    return users.find((u) => u.userUuid === userUuid)?.userUuid
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - readUserUuid`)
+  }
+}
+
+const deleteUser = (roomUuid, userUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const userIndex = rooms[roomUuid].users.findIndex(u => u.userUuid === userUuid)
     if (userIndex !== -1) {
-      let username = rooms[uuid].users[userIndex].username
-      rooms[uuid].users.splice(userIndex, 1)[0]
-      createLog(uuid, `User ${userId} (${username}) left`)
+      let username = rooms[roomUuid].users[userIndex].username
+      rooms[roomUuid].users.splice(userIndex, 1)[0]
+      createLog(roomUuid, `User ${userUuid} (${username}) left`)
     } else {
-      console.error(`# Couldn't find user ${userId}`)
+      console.error(`# Couldn't find user ${userUuid}`)
     }
   } else {
-    console.error(`# Couldn't find room ${uuid} - deleteUser`)
+    console.error(`# Couldn't find room ${roomUuid} - deleteUser`)
   }
 }
 
 // LOG CRUD
-const readLog = (uuid) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    return rooms[uuid].log
+const readLog = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    return rooms[roomUuid].log
   } else {
-    console.error(`# Couldn't find room ${uuid} - readLog`)
+    console.error(`# Couldn't find room ${roomUuid} - readLog`)
   }
 }
 
@@ -303,6 +347,7 @@ module.exports = {
   rooms,
   createRoom,
   readRoom,
+  readRoomHost,
   deleteRoom,
 
   readBoard,
@@ -315,6 +360,7 @@ module.exports = {
 
   createUser,
   readUsername,
+  readUserUuid,
   deleteUser,
 
   readFactions,
