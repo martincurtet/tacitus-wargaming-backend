@@ -8,6 +8,12 @@ let rooms = {}
 let exampleRoom = {
   uuid: 'uuid',
   hostUuid: '',
+  step: 1,
+  // step 1 factions and users
+  // step 2 units
+  // step 3 initiative
+  // step 4 board
+  // step 5 play
   board: {
   'rows': 12,
   'columns': 12,
@@ -36,7 +42,7 @@ let exampleRoom = {
     // { code: 'CRI-ARC-1-B', name: 'Archer', veterancy: '1', identifier: 'B', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' },
     // { code: 'CRI-ARC-2', name: 'Archer', veterancy: '2', identifier: '', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' }
   ],
-  users: [] // { userUuid: '', username: '', currentSocketId: '' }
+  users: [] // { userUuid: '', username: '', currentSocketId: '', faction: 'KAR' }
 }
 
 // ROOM CRUD
@@ -46,6 +52,7 @@ const createRoom = (username, socketId) => {
   rooms[roomUuid] = {
     uuid: roomUuid,
     hostUuid: userUuid,
+    step: 1,
     board: {
     'rows': 12,
     'columns': 12,
@@ -60,7 +67,8 @@ const createRoom = (username, socketId) => {
     users: [{
       userUuid: userUuid,
       username: username,
-      currentSocketId: socketId
+      currentSocketId: socketId,
+      faction: ''
     }]
   }
   // console.log(`# Room ${uuid} created`)
@@ -93,6 +101,31 @@ const deleteRoom = (uuid) => {
     // console.log(`# Room ${uuid} deleted`)
   } else {
     console.error(`# Couldn't find room ${uuid} - deleteRoom`)
+  }
+}
+
+// STEPS
+const nextStep = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    // STEP MAX 5
+    let currentStep = rooms[roomUuid].step
+    if (currentStep <= 4) {
+      rooms[roomUuid].step = currentStep + 1
+    }
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - nextStep`)
+  }
+}
+
+const prevStep = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    // STEP MIN 1
+    let currentStep = rooms[roomUuid].step
+    if (currentStep >= 2) {
+      rooms[roomUuid].step = currentStep - 1
+    }
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - prevStep`)
   }
 }
 
@@ -270,7 +303,7 @@ const updateUnit = (uuid, unitCode, unitData) => {
 const createUser = (roomUuid, socketId, username) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     let userUuid = uuidv4()
-    rooms[roomUuid].users.push({ userUuid: userUuid, username: username, currentSocketId: socketId })
+    rooms[roomUuid].users.push({ userUuid: userUuid, username: username, currentSocketId: socketId, faction: '' })
     createLog(roomUuid, `User ${userUuid} (${username}) joined`)
     return userUuid
   } else {
@@ -349,6 +382,9 @@ module.exports = {
   readRoom,
   readRoomHost,
   deleteRoom,
+
+  nextStep,
+  prevStep,
 
   readBoard,
   readBoardRows,
