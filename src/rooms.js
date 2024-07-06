@@ -72,21 +72,6 @@ const createRoom = (username, socketId) => {
       username: username,
       currentSocketId: socketId,
       faction: ''
-    },{
-      userUuid: 'abcde12345',
-      username: 'Bep',
-      currentSocketId: '12345abcde',
-      faction: 'KAR'
-    },{
-      userUuid: 'abcde12346',
-      username: 'Kirko',
-      currentSocketId: '12346abcde',
-      faction: 'KAR'
-    },{
-      userUuid: 'abcde12347',
-      username: 'bloodrizer',
-      currentSocketId: '12347abcde',
-      faction: 'CRI'
     }]
   }
   // commander strategic ability modifier: CSAM
@@ -380,6 +365,14 @@ const createUser = (roomUuid, socketId, username) => {
   }
 }
 
+const readUsers = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    return rooms[roomUuid].users
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - readUsers`)
+  }
+}
+
 const readUsername = (uuid, userId) => {
   if (rooms.hasOwnProperty(uuid)) {
     const users = rooms[uuid].users
@@ -398,6 +391,34 @@ const readUserUuid = (roomUuid, userUuid) => {
   }
 }
 
+const updateUserSocket = (roomUuid, userUuid, socketId) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    // find user
+    const users = rooms[roomUuid].users
+    let userIndex = users.findIndex(u => u.userUuid === userUuid)
+    let username = users[userIndex].username
+    // update socket
+    rooms[roomUuid].users[userIndex].currentSocketId = socketId
+    createLog(roomUuid, `User ${userUuid} (${username}) reconnected`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUserSocket`)
+  }
+}
+
+const updateUserFaction = (roomUuid, userUuid, factionCode) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    // find user
+    const users = rooms[roomUuid].users
+    let userIndex = users.findIndex(u => u.userUuid === userUuid)
+    let username = users[userIndex].username
+    // update faction
+    rooms[roomUuid].users[userIndex].faction = factionCode
+    createLog(roomUuid, `User ${userUuid} (${username}) changed faction to ${factionCode === '' ? 'none' : factionCode}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUserFaction`)
+  }
+}
+
 const deleteUser = (roomUuid, userUuid) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const userIndex = rooms[roomUuid].users.findIndex(u => u.userUuid === userUuid)
@@ -410,6 +431,21 @@ const deleteUser = (roomUuid, userUuid) => {
     }
   } else {
     console.error(`# Couldn't find room ${roomUuid} - deleteUser`)
+  }
+}
+
+const disconnectUser = (roomUuid, userUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const userIndex = rooms[roomUuid].users.findIndex(u => u.userUuid === userUuid)
+    if (userIndex !== -1) {
+      let username = rooms[roomUuid].users[userIndex].username
+      rooms[roomUuid].users[userIndex].currentSocketId = ''
+      createLog(roomUuid, `User ${userUuid} (${username}) disconnected`)
+    } else {
+      console.error(`# Couldn't find user ${userUuid}`)
+    }
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - disconnectUser`)
   }
 }
 
@@ -464,9 +500,13 @@ module.exports = {
   updateBoardUnit,
 
   createUser,
+  readUsers,
   readUsername,
   readUserUuid,
+  updateUserSocket,
+  updateUserFaction,
   deleteUser,
+  disconnectUser,
 
   addFaction,
   readFactions,

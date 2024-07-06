@@ -2,6 +2,9 @@ const { Server } = require('socket.io')
 const {
   createRoom,
   createUser,
+  readUsers,
+  readUserUuid,
+  updateUserFaction,
   deleteUser,
   readRoom,
   readBoard,
@@ -23,9 +26,10 @@ const {
   updateBoardUnit,
   updateFactionsUnits,
   readRoomHost,
-  readUserUuid,
   addFaction,
-  removeFaction
+  removeFaction,
+  disconnectUser,
+  updateUserSocket
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -52,38 +56,39 @@ module.exports = (server) => {
     // JOIN ROOM
     socket.on('join-room', (data) => {
       // data: { roomUuid, userUuid, username }
+      let roomUuid = data.roomUuid
       let userUuid = ''
       let isUserHost = false
       if (data.userUuid === '') {
         // New Player
-        console.log('new player joining')
-        userUuid = createUser(data.roomUuid, socket.id, data.username)
+        userUuid = createUser(roomUuid, socket.id, data.username)
       } else {
         // Existing Player
-        if (readUserUuid(data.roomUuid, data.userUuid) === undefined) {
-        } else {
-          userUuid = readUserUuid(data.roomUuid, data.userUuid)
+        if (readUserUuid(roomUuid, data.userUuid) !== undefined) {
+          userUuid = readUserUuid(roomUuid, data.userUuid)
+          updateUserSocket(roomUuid, userUuid, socket.id)
         }
       }
       // Load Room Data
-      socket.join(data.roomUuid)
+      socket.join(roomUuid)
       let mergedData = {
-        ...readRoom(data.roomUuid),
+        ...readRoom(roomUuid),
         userUuid: userUuid,
         username: data.username,
         userColor: '#000000',
         isUserHost: isUserHost
       }
       socket.emit('room-joined', mergedData)
-      createMessage(data.roomUuid, `System`, `${data.username} joined`)
-      io.to(data.roomUuid).emit('message-sent', { messages: readMessages(data.roomUuid), log: readLog(data.roomUuid) })
+      createMessage(roomUuid, `System`, `${data.username} joined`)
+      // io.to(roomUuid).emit('message-sent', { messages: readMessages(roomUuid), log: readLog(roomUuid) })
+      io.to(roomUuid).emit('user-joined', { users: readUsers(roomUuid), messages: readMessages(roomUuid), log: readLog(roomUuid) })
 
       // DISCONNECTING
       socket.on('disconnecting', () => {
-        // don't delete, put disconnected or something
-        // deleteUser(data.roomUuid, userUuid)
-        createMessage(data.roomUuid, `System`, `${data.username} left`)
-        io.to(data.roomUuid).emit('message-sent', { messages: readMessages(data.roomUuid), log: readLog(data.roomUuid) })
+        disconnectUser(roomUuid, userUuid)
+        createMessage(roomUuid, `System`, `${data.username} left`)
+        // io.to(roomUuid).emit('message-sent', { messages: readMessages(roomUuid), log: readLog(roomUuid) })
+        io.to(roomUuid).emit('user-left', { users: readUsers(roomUuid), messages: readMessages(roomUuid), log: readLog(roomUuid) })
       })
     })
 
@@ -98,7 +103,9 @@ module.exports = (server) => {
       io.to(data.roomUuid).emit('faction-removed', { factions: readFactions(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
-    socket.on('assign-faction', () => {
+    socket.on('assign-faction', (data) => {
+      updateUserFaction(data.roomUuid, data.userUuid, data.factionCode)
+      io.to(data.roomUuid).emit('faction-assigned', { users: readUsers(data.roomUuid), log: readLog(data.roomUuid)})
     })
 
     socket.on('change-strat-ability', () => {
