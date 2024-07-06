@@ -6,7 +6,7 @@ let rooms = {}
 
 // EXAMPLE ROOM
 let exampleRoom = {
-  uuid: 'uuid',
+  roomUuid: 'uuid',
   hostUuid: '',
   step: 1,
   // step 1 factions and users
@@ -51,7 +51,7 @@ const createRoom = (username, socketId) => {
   const roomUuid = uuidv4()
   const userUuid = uuidv4()
   rooms[roomUuid] = {
-    uuid: roomUuid,
+    roomUuid: roomUuid,
     hostUuid: userUuid,
     step: 1,
     board: {
@@ -89,11 +89,11 @@ const readRoom = (roomUuid) => {
   }
 }
 
-const readRoomHost = (uuid) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    return rooms[uuid].host
+const readRoomHost = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    return rooms[roomUuid].hostUuid
   } else {
-    console.error(`# Couldn't find room ${uuid} - readRoomHost`)
+    console.error(`# Couldn't find room ${roomUuid} - readRoomHost`)
   }
 }
 
@@ -399,6 +399,15 @@ const readUserUuid = (roomUuid, userUuid) => {
   }
 }
 
+const readUserFaction = (roomUuid, userUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const users = rooms[roomUuid].users
+    return users.find(u => u.userUuid === userUuid)?.faction
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - readUserUuid`)
+  }
+}
+
 const updateUserSocket = (roomUuid, userUuid, socketId) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     // find user
@@ -418,12 +427,27 @@ const updateUserFaction = (roomUuid, userUuid, factionCode) => {
     // find user
     const users = rooms[roomUuid].users
     let userIndex = users.findIndex(u => u.userUuid === userUuid)
+    if (userIndex === -1) console.error(`bro the index is negative`)
     let username = users[userIndex].username
     // update faction
     rooms[roomUuid].users[userIndex].faction = factionCode
     createLog(roomUuid, `User ${userUuid} (${username}) changed faction to ${factionCode === '' ? 'none' : factionCode}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUserFaction`)
+  }
+}
+
+const updateUserStratAbility = (roomUuid, userUuid, stratAbility) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    // find user
+    const users = rooms[roomUuid].users
+    let userIndex = users.findIndex(u => u.userUuid === userUuid)
+    let username = users[userIndex].username
+    // update strat ability
+    rooms[roomUuid].users[userIndex].stratAbility = stratAbility
+    createLog(roomUuid, `User ${userUuid} (${username}) changed stratAbility to ${stratAbility}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUserStratAbility`)
   }
 }
 
@@ -511,8 +535,10 @@ module.exports = {
   readUsers,
   readUsername,
   readUserUuid,
+  readUserFaction,
   updateUserSocket,
   updateUserFaction,
+  updateUserStratAbility,
   deleteUser,
   disconnectUser,
 

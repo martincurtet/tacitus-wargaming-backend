@@ -29,7 +29,9 @@ const {
   addFaction,
   removeFaction,
   disconnectUser,
-  updateUserSocket
+  updateUserSocket,
+  updateUserStratAbility,
+  readUserFaction
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -49,7 +51,7 @@ module.exports = (server) => {
       let username = data.username
       if (/^[a-zA-Z0-9]*$/.test(username) && username !== '') {
         const [roomUuid, userUuid] = createRoom(username, socket.id)
-        socket.emit('room-created', { roomUuid: roomUuid, userUuid: userUuid, username: username, userColor: '#000000', isUserHost: 'true' })
+        socket.emit('room-created', { roomUuid: roomUuid, userUuid: userUuid, username: username, userColor: '#000000', isUserHost: true })
       }
     })
 
@@ -67,6 +69,7 @@ module.exports = (server) => {
         if (readUserUuid(roomUuid, data.userUuid) !== undefined) {
           userUuid = readUserUuid(roomUuid, data.userUuid)
           updateUserSocket(roomUuid, userUuid, socket.id)
+          isUserHost = userUuid === readRoomHost(roomUuid)
         }
       }
       // Load Room Data
@@ -104,11 +107,16 @@ module.exports = (server) => {
     })
 
     socket.on('assign-faction', (data) => {
-      updateUserFaction(data.roomUuid, data.userUuid, data.factionCode)
-      io.to(data.roomUuid).emit('faction-assigned', { users: readUsers(data.roomUuid), log: readLog(data.roomUuid)})
+      let currentUserFaction = readUserFaction(data.roomUuid, data.userUuid)
+      if (currentUserFaction !== data.factionCode) {
+        updateUserFaction(data.roomUuid, data.userUuid, data.factionCode)
+        io.to(data.roomUuid).emit('faction-assigned', { users: readUsers(data.roomUuid), log: readLog(data.roomUuid)})
+      }
     })
 
     socket.on('change-strat-ability', () => {
+      updateUserStratAbility(data.roomUuid, data.userUuid, data.stratAbility)
+      io.to(data.roomUuid).emit('strat-ability-changed', { users: readUsers(data.roomUuid), log: readLog(data.roomUuid)})
     })
 
     // GAMEPLAY
