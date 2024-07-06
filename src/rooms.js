@@ -30,7 +30,8 @@ let exampleRoom = {
   //   code: 'KAR',
   //   color: '#ed1b24',
   //   icon: 'karinia.png',
-  //   name: 'Karinia'
+  //   name: 'Karinia',
+  //   FSM: 5
   // }],
   log: [],
   messages: [], // { timestamp: '', username: '', message: '' }
@@ -42,7 +43,7 @@ let exampleRoom = {
     // { code: 'CRI-ARC-1-B', name: 'Archer', veterancy: '1', identifier: 'B', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' },
     // { code: 'CRI-ARC-2', name: 'Archer', veterancy: '2', identifier: '', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' }
   ],
-  users: [] // { userUuid: '', username: '', currentSocketId: '', faction: 'KAR' }
+  users: [] // { userUuid: '', username: '', currentSocketId: '', faction: 'KAR', CSAM: 4 }
 }
 
 // ROOM CRUD
@@ -59,7 +60,21 @@ const createRoom = (username, socketId) => {
     'drop-zone': [],
     },
     factionShop: factionShop,
-    factions: [],
+    // faction strategic ability modifier FSAM
+    // not present during creation, get set up during step 1
+    factions: [{
+      code: 'KAR',
+      color: '#ed1b24',
+      icon: 'karinia.png',
+      name: 'Karinia',
+      stratAbility: ''
+    },{
+      code: 'CRI',
+      color: '#800040',
+      icon: 'crienica.png',
+      name: 'Crienica',
+      stratAbility: ''
+    }],
     log: [],
     messages: [],
     unitShop: unitShop,
@@ -69,8 +84,24 @@ const createRoom = (username, socketId) => {
       username: username,
       currentSocketId: socketId,
       faction: ''
+    },{
+      userUuid: 'abcde12345',
+      username: 'Bep',
+      currentSocketId: '12345abcde',
+      faction: 'KAR'
+    },{
+      userUuid: 'abcde12346',
+      username: 'Kirko',
+      currentSocketId: '12346abcde',
+      faction: 'KAR'
+    },{
+      userUuid: 'abcde12347',
+      username: 'bloodrizer',
+      currentSocketId: '12347abcde',
+      faction: 'CRI'
     }]
   }
+  // commander strategic ability modifier: CSAM
   // console.log(`# Room ${uuid} created`)
   createLog(roomUuid, `Room created`)
   createLog(roomUuid, `User ${userUuid} (${username}) joined`)
@@ -215,11 +246,46 @@ const updateBoardUnit = (uuid, unitCode, startingCell, droppingCell) => {
 }
 
 // FACTION CRUD
-const readFactions = (uuid) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    return rooms[uuid].factions
+// const createFaction = (roomUuid, factionData) => {
+//   // factionData: name, color, code, iconName
+//   if (rooms.hasOwnProperty(roomUuid)) {
+//     if (rooms[roomUuid].factions.some(f => f.code === factionData.code)) {
+//       console.error(`# Faction already exists`)
+//     } else {
+//       rooms[roomUuid].push({
+//         code: factionData.code,
+//         color: factionData.color,
+//         icon: factionData.iconName,
+//         name: factionData.name,
+//         stratAbility: ''
+//       })
+//     }
+//   } else {
+//     console.error(`# Couldn't find room ${roomUuid} - createFaction`)
+//   }
+// }
+
+const addFaction = (roomUuid, factionCode) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    if (rooms[roomUuid].factions.some(f => f.code === factionCode)) {
+      console.error(`# Faction already exists`)
+    } else {
+      let faction = factionShop.find(f => f.code === factionCode)
+      rooms[roomUuid].factions.push({
+        ...faction,
+        stratAbility: ''
+      })
+    }
   } else {
-    console.error(`# Couldn't find room ${uuid} - readFactions`)
+    console.error(`# Couldn't find room ${roomUuid} - addFaction`)
+  }
+}
+
+const readFactions = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    return rooms[roomUuid].factions
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - readFactions`)
   }
 }
 
@@ -399,6 +465,7 @@ module.exports = {
   readUserUuid,
   deleteUser,
 
+  addFaction,
   readFactions,
   updateFactions,
 

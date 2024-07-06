@@ -23,7 +23,8 @@ const {
   updateBoardUnit,
   updateFactionsUnits,
   readRoomHost,
-  readUserUuid
+  readUserUuid,
+  addFaction
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -85,31 +86,22 @@ module.exports = (server) => {
       })
     })
 
-    // SETUP STEPS
-    socket.on('setup-factions', () => {
-      // right after creating room, host chooses factions
-      // players put themselves in factions
-
-      // update factions
-      // update players faction
-
-      // emit faction and user data
+    // SETUP STEP 1 - FACTION
+    socket.on('add-faction', (data) => {
+      addFaction(data.roomUuid, data.factionCode)
+      io.to(data.roomUuid).emit('faction-added', { factions: readFactions(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
-    socket.on('setup-units', () => {
-      // players can be their own units on the factions
-      // choose hd etc
-
-      // update units
+    socket.on('edit-faction', () => {
     })
 
-    socket.on('setup-initiative', () => {
-      // initiative
-      // need to add datapoints in units
+    socket.on('delete-faction', () => {
     })
 
-    socket.on('setup-board', () => {
-      // board updates
+    socket.on('assign-faction', () => {
+    })
+
+    socket.on('change-strat-ability', () => {
     })
 
     // GAMEPLAY
