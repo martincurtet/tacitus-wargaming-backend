@@ -62,19 +62,7 @@ const createRoom = (username, socketId) => {
     factionShop: factionShop,
     // faction strategic ability modifier FSAM
     // not present during creation, get set up during step 1
-    factions: [{
-      code: 'KAR',
-      color: '#ed1b24',
-      icon: 'karinia.png',
-      name: 'Karinia',
-      stratAbility: ''
-    },{
-      code: 'CRI',
-      color: '#800040',
-      icon: 'crienica.png',
-      name: 'Crienica',
-      stratAbility: ''
-    }],
+    factions: [],
     log: [],
     messages: [],
     unitShop: unitShop,
@@ -275,6 +263,7 @@ const addFaction = (roomUuid, factionCode) => {
         ...faction,
         stratAbility: ''
       })
+      createLog(roomUuid, `Faction ${factionCode} added to room ${roomUuid}`)
     }
   } else {
     console.error(`# Couldn't find room ${roomUuid} - addFaction`)
@@ -295,6 +284,20 @@ const updateFactions = (uuid, factions) => {
     createLog(uuid, `Factions updated`)
   } else {
     console.error(`# Couldn't find room ${uuid} - updateFactions`)
+  }
+}
+
+const removeFaction = (roomUuid, factionCode) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const factionIndex = rooms[roomUuid].factions.findIndex(f => f.code === factionCode)
+    if (factionIndex !== -1) {
+      rooms[roomUuid].factions.splice(factionIndex, 1)
+      createLog(roomUuid, `Faction ${factionCode} removed from room ${roomUuid}`)
+    } else {
+      console.error(`# Faction doesn't exists`)
+    }
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - removeFaction`)
   }
 }
 
@@ -468,6 +471,7 @@ module.exports = {
   addFaction,
   readFactions,
   updateFactions,
+  removeFaction,
 
   createMessage,
   readMessages,

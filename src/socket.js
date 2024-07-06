@@ -24,7 +24,8 @@ const {
   updateFactionsUnits,
   readRoomHost,
   readUserUuid,
-  addFaction
+  addFaction,
+  removeFaction
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -92,10 +93,9 @@ module.exports = (server) => {
       io.to(data.roomUuid).emit('faction-added', { factions: readFactions(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
-    socket.on('edit-faction', () => {
-    })
-
-    socket.on('delete-faction', () => {
+    socket.on('remove-faction', (data) => {
+      removeFaction(data.roomUuid, data.factionCode)
+      io.to(data.roomUuid).emit('faction-removed', { factions: readFactions(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
     socket.on('assign-faction', () => {
