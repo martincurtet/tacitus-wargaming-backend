@@ -278,6 +278,14 @@ const removeFaction = (roomUuid, factionCode) => {
     if (factionIndex !== -1) {
       rooms[roomUuid].factions.splice(factionIndex, 1)
       createLog(roomUuid, `Faction ${factionCode} removed from room ${roomUuid}`)
+      // remove faction from users
+      const users = rooms[roomUuid].users
+      // TODO go through users and if it matches factionCode, change it to empty string
+      users.forEach((u, i) => {
+        if (u.faction === factionCode) {
+          updateUserFaction(roomUuid, u.userUuid, '')
+        }
+      })
     } else {
       console.error(`# Faction doesn't exists`)
     }

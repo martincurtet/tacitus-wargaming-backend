@@ -100,7 +100,7 @@ module.exports = (server) => {
 
     socket.on('remove-faction', (data) => {
       removeFaction(data.roomUuid, data.factionCode)
-      io.to(data.roomUuid).emit('faction-removed', { factions: readFactions(data.roomUuid), log: readLog(data.roomUuid) })
+      io.to(data.roomUuid).emit('faction-removed', { users: readUsers(data.roomUuid), factions: readFactions(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
     socket.on('assign-faction', (data) => {
