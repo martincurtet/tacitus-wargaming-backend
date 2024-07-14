@@ -34,7 +34,9 @@ const {
   readUserFaction,
   updateFactionStratAbility,
   readFactionStratAbility,
-  updateFactionsStratAbility
+  updateFactionsStratAbility,
+  nextStep,
+  readStep
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -123,6 +125,13 @@ module.exports = (server) => {
       updateUserStratAbility(data.roomUuid, data.userUuid, data.stratAbility)
       updateFactionsStratAbility(data.roomUuid)
       io.to(data.roomUuid).emit('strat-ability-changed', { users: readUsers(data.roomUuid), factions: readFactions(data.roomUuid), log: readLog(data.roomUuid)})
+    })
+
+    // SETUP STEPS
+    socket.on('next-step', (data) => {
+      console.log(data.roomUuid)
+      nextStep(data.roomUuid)
+      io.to(data.roomUuid).emit('step-next', { step: readStep(data.roomUuid) })
     })
 
     // GAMEPLAY

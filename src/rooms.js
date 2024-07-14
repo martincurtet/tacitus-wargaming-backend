@@ -134,6 +134,14 @@ const prevStep = (roomUuid) => {
   }
 }
 
+const readStep = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    return rooms[roomUuid].step
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - readStep`)
+  }
+}
+
 // BOARD CRUD
 const readBoard = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
@@ -578,6 +586,7 @@ module.exports = {
 
   nextStep,
   prevStep,
+  readStep,
 
   readBoard,
   readBoardRows,
