@@ -264,12 +264,67 @@ const readFactions = (roomUuid) => {
   }
 }
 
+const readFactionStratAbility = (roomUuid, factionCode) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const factions = rooms[roomUuid].factions
+    return factions.find(f => f.code === factionCode)?.stratAbility
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - readFactionStratAbility`)
+  }
+}
+
 const updateFactions = (uuid, factions) => {
   if (rooms.hasOwnProperty(uuid)) {
     rooms[uuid].factions = factions
     createLog(uuid, `Factions updated`)
   } else {
     console.error(`# Couldn't find room ${uuid} - updateFactions`)
+  }
+}
+
+const updateFactionStratAbility = (roomUuid, factionCode, stratAbility) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    // find faction
+    const factions = rooms[roomUuid].factions
+    let factionIndex = factions.findIndex(f => f.code === factionCode)
+    // update strat ability
+    rooms[roomUuid].factions[factionIndex].stratAbility = parseInt(stratAbility)
+    createLog(roomUuid, `Faction ${factionCode} changed stratAbility to ${stratAbility}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateFactionStratAbility`)
+  }
+}
+
+const updateFactionsStratAbility = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    // Initialize an object to hold the maximum strat ability for each faction
+  let factionStratAbilities = {}
+
+  // Iterate through the users in the room
+  rooms[roomUuid].users.forEach(u => {
+    let userFaction = u.faction
+    let userStratAbility = u.stratAbility
+
+    // Check if the faction already has a recorded strat ability
+    if (factionStratAbilities[userFaction] === undefined) {
+      // If not, initialize it with the user's strat ability
+      factionStratAbilities[userFaction] = userStratAbility
+    } else {
+      // If it does, update it to be the maximum of the current and the user's strat ability
+      factionStratAbilities[userFaction] = Math.max(factionStratAbilities[userFaction], userStratAbility)
+    }
+  });
+
+  // Update the factions in the room with the calculated strat abilities
+  rooms[roomUuid].factions.forEach(f => {
+    if (factionStratAbilities[f.code] !== undefined) {
+      f.stratAbility = factionStratAbilities[f.code]
+    } else {
+      f.stratAbility = 0 // Default value if no users belong to the faction
+    }
+  })
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateFactionsStratAbility`)
   }
 }
 
@@ -545,7 +600,10 @@ module.exports = {
 
   addFaction,
   readFactions,
+  readFactionStratAbility,
   updateFactions,
+  updateFactionStratAbility,
+  updateFactionsStratAbility,
   removeFaction,
 
   createMessage,

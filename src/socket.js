@@ -31,7 +31,10 @@ const {
   disconnectUser,
   updateUserSocket,
   updateUserStratAbility,
-  readUserFaction
+  readUserFaction,
+  updateFactionStratAbility,
+  readFactionStratAbility,
+  updateFactionsStratAbility
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -107,16 +110,19 @@ module.exports = (server) => {
     })
 
     socket.on('assign-faction', (data) => {
+      // need to calculate faction stratAbility both previous and new one
       let currentUserFaction = readUserFaction(data.roomUuid, data.userUuid)
       if (currentUserFaction !== data.factionCode) {
         updateUserFaction(data.roomUuid, data.userUuid, data.factionCode)
-        io.to(data.roomUuid).emit('faction-assigned', { users: readUsers(data.roomUuid), log: readLog(data.roomUuid)})
+        updateFactionsStratAbility(data.roomUuid)
+        io.to(data.roomUuid).emit('faction-assigned', { users: readUsers(data.roomUuid), factions: readFactions(data.roomUuid), log: readLog(data.roomUuid)})
       }
     })
 
     socket.on('change-strat-ability', (data) => {
       updateUserStratAbility(data.roomUuid, data.userUuid, data.stratAbility)
-      io.to(data.roomUuid).emit('strat-ability-changed', { users: readUsers(data.roomUuid), log: readLog(data.roomUuid)})
+      updateFactionsStratAbility(data.roomUuid)
+      io.to(data.roomUuid).emit('strat-ability-changed', { users: readUsers(data.roomUuid), factions: readFactions(data.roomUuid), log: readLog(data.roomUuid)})
     })
 
     // GAMEPLAY
