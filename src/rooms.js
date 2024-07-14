@@ -31,7 +31,7 @@ let exampleRoom = {
   //   color: '#ed1b24',
   //   icon: 'karinia.png',
   //   name: 'Karinia',
-  //   FSM: 5
+  //   stratAbility: 0
   // }],
   log: [],
   messages: [], // { timestamp: '', username: '', message: '' }
@@ -43,7 +43,7 @@ let exampleRoom = {
     // { code: 'CRI-ARC-1-B', name: 'Archer', veterancy: '1', identifier: 'B', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' },
     // { code: 'CRI-ARC-2', name: 'Archer', veterancy: '2', identifier: '', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' }
   ],
-  users: [] // { userUuid: '', username: '', currentSocketId: '', faction: 'KAR', CSAM: 4 }
+  users: [] // { userUuid: '', username: '', currentSocketId: '', faction: 'KAR', stratAbility: 0 }
 }
 
 // ROOM CRUD
@@ -71,7 +71,8 @@ const createRoom = (username, socketId) => {
       userUuid: userUuid,
       username: username,
       currentSocketId: socketId,
-      faction: ''
+      faction: '',
+      stratAbility: 0
     }]
   }
   // commander strategic ability modifier: CSAM
@@ -246,7 +247,7 @@ const addFaction = (roomUuid, factionCode) => {
       let faction = factionShop.find(f => f.code === factionCode)
       rooms[roomUuid].factions.push({
         ...faction,
-        stratAbility: ''
+        stratAbility: 0
       })
       createLog(roomUuid, `Faction ${factionCode} added to room ${roomUuid}`)
     }
@@ -365,7 +366,7 @@ const updateUnit = (uuid, unitCode, unitData) => {
 const createUser = (roomUuid, socketId, username) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     let userUuid = uuidv4()
-    rooms[roomUuid].users.push({ userUuid: userUuid, username: username, currentSocketId: socketId, faction: '' })
+    rooms[roomUuid].users.push({ userUuid: userUuid, username: username, currentSocketId: socketId, faction: '', stratAbility: 0 })
     createLog(roomUuid, `User ${userUuid} (${username}) joined`)
     return userUuid
   } else {
@@ -444,7 +445,7 @@ const updateUserStratAbility = (roomUuid, userUuid, stratAbility) => {
     let userIndex = users.findIndex(u => u.userUuid === userUuid)
     let username = users[userIndex].username
     // update strat ability
-    rooms[roomUuid].users[userIndex].stratAbility = stratAbility
+    rooms[roomUuid].users[userIndex].stratAbility = parseInt(stratAbility)
     createLog(roomUuid, `User ${userUuid} (${username}) changed stratAbility to ${stratAbility}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUserStratAbility`)

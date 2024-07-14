@@ -114,7 +114,7 @@ module.exports = (server) => {
       }
     })
 
-    socket.on('change-strat-ability', () => {
+    socket.on('change-strat-ability', (data) => {
       updateUserStratAbility(data.roomUuid, data.userUuid, data.stratAbility)
       io.to(data.roomUuid).emit('strat-ability-changed', { users: readUsers(data.roomUuid), log: readLog(data.roomUuid)})
     })
