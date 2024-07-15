@@ -2,6 +2,8 @@ const { v4: uuidv4 } = require('uuid')
 const { unitShop, compareUnits, calculateCasualties } = require('./units')
 const { factionShop } = require('./factions')
 
+const DEFAULT_MEN_VALUE = 20
+
 let rooms = {}
 
 // EXAMPLE ROOM
@@ -37,11 +39,11 @@ let exampleRoom = {
   messages: [], // { timestamp: '', username: '', message: '' }
   unitShop: unitShop,
   units: [
-    // { code: 'KAR-SPE-0', name: 'Spearman', veterancy: '0', identifier: '', faction: 'Karinia', icon: 'spearman.png', men: '20', hdPerMen: '2', maxHd: '40', hd: '40', casualties: '0', fatigue: '0', notes: '' },
-    // { code: 'KAR-INF-1', name: 'Infantry', veterancy: '1', identifier: '', faction: 'Karinia', icon: 'infantry.png', men: '20', hdPerMen: '2', maxHd: '40', hd: '40', casualties: '0', fatigue: '0', notes: '' },
-    // { code: 'CRI-ARC-1-A', name: 'Archer', veterancy: '1', identifier: 'A', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' },
-    // { code: 'CRI-ARC-1-B', name: 'Archer', veterancy: '1', identifier: 'B', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' },
-    // { code: 'CRI-ARC-2', name: 'Archer', veterancy: '2', identifier: '', faction: 'Crienica', icon: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: '0', fatigue: '0', notes: '' }
+    // { code: 'KAR-SPE-0', name: 'Spearman', veterancy: '0', identifier: '', factionCode: 'KAR, iconName: 'spearman.png', men: '20', hdPerMen: '2', maxHd: '40', hd: '40', casualties: 0, fatigue: 0, notes: '' },
+    // { code: 'KAR-INF-1', name: 'Infantry', veterancy: '1', identifier: '', factionCode: 'KAR, iconName: 'infantry.png', men: '20', hdPerMen: '2', maxHd: '40', hd: '40', casualties: 0, fatigue: 0, notes: '' },
+    // { code: 'CRI-ARC-1-A', name: 'Archer', veterancy: '1', identifier: 'A', factionCode: 'CRI', iconName: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: 0, fatigue: 0, notes: '' },
+    // { code: 'CRI-ARC-1-B', name: 'Archer', veterancy: '1', identifier: 'B', factionCode: 'CRI', iconName: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: 0, fatigue: 0, notes: '' },
+    // { code: 'CRI-ARC-2', name: 'Archer', veterancy: '2', identifier: '', factionCode: 'CRI', iconName: 'archer.png', men: '20', hdPerMen: '1', maxHd: '20', hd: '20', casualties: 0, fatigue: 0, notes: '' }
   ],
   users: [] // { userUuid: '', username: '', currentSocketId: '', faction: 'KAR', stratAbility: 0 }
 }
@@ -385,6 +387,53 @@ const updateMessages = (uuid, messages) => {
 }
 
 // UNIT CRUD
+const addUnit = (roomUuid, factionCode, unitCode) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const unitShopItem = unitShop.find(u => u.code === unitCode)
+    let newUnit = {
+      unitCode: unitCode, // parameters
+      name: unitShopItem.name, // unitShop
+      veterancy: unitShopItem.veterancy, // unitShop
+      identifier: '', // calculated below
+      factionCode: factionCode, // parameters
+      iconName: unitShopItem.icon, // unitShop
+      men: DEFAULT_MEN_VALUE, // default value
+      hdPerMen: unitShopItem.hdPerMen, // unitShop
+      maxHd: parseInt(unitShopItem.hdPerMen) * DEFAULT_MEN_VALUE, // calculated
+      hd: parseInt(unitShopItem.hdPerMen) * DEFAULT_MEN_VALUE, // calculated
+      casualties: 0, // default value
+      fatigue: 0, // default value
+      notes: '' // empty
+    }
+    // check if same unit type exists in faction
+    const units = rooms[roomUuid].units
+    const sameUnits = units.filter(u => u.unitCode === unitCode)
+    // update identifier to all units of this type
+    if (sameUnits.length === 1) {
+      // only one unit without identifier, add A to it then B to the new one
+      updateUnitIdentifier(roomUuid, unitCode, 'A')
+      newUnit.identifier = 'B'
+    } else if (sameUnits.length > 1) {
+      // multiple units with existing identifiers
+      // find the latest one and increment identifier
+      // order the array
+      sameUnits.sort((a, b) => {
+        if (a.identifier < b.identifier) return -1
+        if (a.identifier > b.identifier) return 1
+        return 0
+      })
+      // find last id and get next one
+      let lastIdentifier = sameUnit[sameUnits.length - 1].identifier
+      newUnit.identifier = String.fromCharCode(lastIdentifier.charCodeAt(0) + 1)
+    }
+    // push unit
+    rooms[roomUuid].units.push(newUnit)
+    createLog(roomUuid, `Unit ${unitCode} ${newUnit.identifier === '' ? '' : `${newUnit.identifier} `}added to faction ${factionCode}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - addUnit`)
+  }
+}
+
 const readUnits = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
     return rooms[uuid].units
@@ -422,6 +471,20 @@ const updateUnit = (uuid, unitCode, unitData) => {
     }
   } else {
     console.error(`# Couldn't find room ${uuid} - updateUnit`)
+  }
+}
+
+const updateUnitIdentifier = (roomUuid, unitCode, oldIdentifier='', newIdentifier) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    // find unit
+    const units = rooms[roomUuid].units
+    const unitIndex = units.findIndex(u => u.unitCode === unitCode && u.identifier === oldIdentifier)
+    const factionCode = units[unitIndex].factionCode
+    // update identifier
+    rooms[roomUuid].units[unitIndex].identifier = newIdentifier
+    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed identifier ${oldIdentifier === '' ? '' : `from ${oldIdentifier}`} to ${newIdentifier}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitIdentifier`)
   }
 }
 
@@ -619,6 +682,7 @@ module.exports = {
   readMessages,
   updateMessages,
 
+  addUnit,
   readUnits,
   updateUnits,
   updateUnit,

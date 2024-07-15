@@ -36,7 +36,8 @@ const {
   readFactionStratAbility,
   updateFactionsStratAbility,
   nextStep,
-  readStep
+  readStep,
+  addUnit
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -112,7 +113,6 @@ module.exports = (server) => {
     })
 
     socket.on('assign-faction', (data) => {
-      // need to calculate faction stratAbility both previous and new one
       let currentUserFaction = readUserFaction(data.roomUuid, data.userUuid)
       if (currentUserFaction !== data.factionCode) {
         updateUserFaction(data.roomUuid, data.userUuid, data.factionCode)
@@ -129,10 +129,17 @@ module.exports = (server) => {
 
     // SETUP STEPS
     socket.on('next-step', (data) => {
-      console.log(data.roomUuid)
       nextStep(data.roomUuid)
       io.to(data.roomUuid).emit('step-next', { step: readStep(data.roomUuid) })
     })
+
+    // SETUP STEP 2 - UNITS
+    socket.on('add-unit', (data) => {
+      addUnit(data.roomUuid, data.factionCode, data.unitCode)
+      io.to(data.roomUuid).emit('unit-added', { units: readUnits(data.roomUuid) })
+    })
+
+    socket.on('remove-unit', (data) => {})
 
     // GAMEPLAY
 
