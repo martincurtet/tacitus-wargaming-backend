@@ -37,7 +37,8 @@ const {
   updateFactionsStratAbility,
   nextStep,
   readStep,
-  addUnit
+  addUnit,
+  removeUnit
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -139,7 +140,10 @@ module.exports = (server) => {
       io.to(data.roomUuid).emit('unit-added', { units: readUnits(data.roomUuid) })
     })
 
-    socket.on('remove-unit', (data) => {})
+    socket.on('remove-unit', (data) => {
+      removeUnit(data.roomUuid, data.factionCode, data.unitCode, data.identifier)
+      io.to(data.roomUuid).emit('unit-removed', { units: readUnits(data.roomUuid) })
+    })
 
     // GAMEPLAY
 

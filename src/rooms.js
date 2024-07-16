@@ -411,7 +411,7 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
     // update identifier to all units of this type
     if (sameUnits.length === 1) {
       // only one unit without identifier, add A to it then B to the new one
-      updateUnitIdentifier(roomUuid, unitCode, 'A')
+      updateUnitIdentifier(roomUuid, unitCode, '', 'A')
       newUnit.identifier = 'B'
     } else if (sameUnits.length > 1) {
       // multiple units with existing identifiers
@@ -423,7 +423,7 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
         return 0
       })
       // find last id and get next one
-      let lastIdentifier = sameUnit[sameUnits.length - 1].identifier
+      let lastIdentifier = sameUnits[sameUnits.length - 1].identifier
       newUnit.identifier = String.fromCharCode(lastIdentifier.charCodeAt(0) + 1)
     }
     // push unit
@@ -474,7 +474,7 @@ const updateUnit = (uuid, unitCode, unitData) => {
   }
 }
 
-const updateUnitIdentifier = (roomUuid, unitCode, oldIdentifier='', newIdentifier) => {
+const updateUnitIdentifier = (roomUuid, unitCode, oldIdentifier, newIdentifier) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     // find unit
     const units = rooms[roomUuid].units
@@ -485,6 +485,30 @@ const updateUnitIdentifier = (roomUuid, unitCode, oldIdentifier='', newIdentifie
     createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed identifier ${oldIdentifier === '' ? '' : `from ${oldIdentifier}`} to ${newIdentifier}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitIdentifier`)
+  }
+}
+
+const removeUnit = (roomUuid, factionCode, unitCode, identifier) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const unitIndex = rooms[roomUuid].units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
+    if (unitIndex !== -1) {
+      rooms[roomUuid].units.splice(unitIndex, 1)
+      createLog(roomUuid, `Unit ${unitCode} ${identifier === '' ? '' : `${identifier} `}removed from faction ${factionCode}`)
+      // Get units identifiers to update
+      const unitsToUpdate = rooms[roomUuid].units.filter(u => u.factionCode === factionCode && u.unitCode === unitCode)
+      unitsToUpdate.sort((a, b) => {
+        if (a.identifier < b.identifier) return -1
+        if (a.identifier > b.identifier) return 1
+        return 0
+      })
+
+      // Update identifiers sequentially
+      unitsToUpdate.forEach((u, i) => {
+        u.identifier = String.fromCharCode('A'.charCodeAt(0) + i);
+      })
+    }
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - removeUnit`)
   }
 }
 
@@ -686,6 +710,7 @@ module.exports = {
   readUnits,
   updateUnits,
   updateUnit,
+  removeUnit,
 
   readLog,
 
