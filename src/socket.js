@@ -38,7 +38,8 @@ const {
   nextStep,
   readStep,
   addUnit,
-  removeUnit
+  removeUnit,
+  updateUnitMen
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -143,6 +144,11 @@ module.exports = (server) => {
     socket.on('remove-unit', (data) => {
       removeUnit(data.roomUuid, data.factionCode, data.unitCode, data.identifier)
       io.to(data.roomUuid).emit('unit-removed', { units: readUnits(data.roomUuid) })
+    })
+
+    socket.on('change-men', (data) => {
+      updateUnitMen(data.roomUuid, data.unitCode, data.identifier, data.men)
+      io.to(data.roomUuid).emit('men-changed', { units: readUnits(data.roomUuid) })
     })
 
     // GAMEPLAY

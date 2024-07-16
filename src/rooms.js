@@ -488,6 +488,25 @@ const updateUnitIdentifier = (roomUuid, unitCode, oldIdentifier, newIdentifier) 
   }
 }
 
+const updateUnitMen = (roomUuid, unitCode, identifier, men) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    // find unit
+    const units = rooms[roomUuid].units
+    const unitIndex = units.findIndex(u => u.unitCode === unitCode && u.identifier === identifier)
+    const factionCode = units[unitIndex].factionCode
+    const previousMen = units[unitIndex].men
+    const previousMaxHd = units[unitIndex].maxHd
+    // update identifier and calculate new max hd
+    units[unitIndex].men = men
+    const unitShopItem = unitShop.find(u => u.code === unitCode)
+    units[unitIndex].maxHd = parseInt(men * unitShopItem.hdPerMen)
+    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed men value from ${previousMen} to ${men}`)
+    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed maxHd value from ${previousMaxHd} to ${men * unitShopItem.hdPerMen}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitIdentifier`)
+  }
+}
+
 const removeUnit = (roomUuid, factionCode, unitCode, identifier) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const unitIndex = rooms[roomUuid].units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
@@ -710,6 +729,7 @@ module.exports = {
   readUnits,
   updateUnits,
   updateUnit,
+  updateUnitMen,
   removeUnit,
 
   readLog,
