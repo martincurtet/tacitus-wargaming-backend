@@ -147,7 +147,7 @@ module.exports = (server) => {
     })
 
     socket.on('change-men', (data) => {
-      updateUnitMen(data.roomUuid, data.unitCode, data.identifier, data.men)
+      updateUnitMen(data.roomUuid, data.factionCode, data.unitCode, data.identifier, data.men)
       io.to(data.roomUuid).emit('men-changed', { units: readUnits(data.roomUuid) })
     })
 

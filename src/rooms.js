@@ -407,7 +407,7 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
     }
     // check if same unit type exists in faction
     const units = rooms[roomUuid].units
-    const sameUnits = units.filter(u => u.unitCode === unitCode)
+    const sameUnits = units.filter(u => u.unitCode === unitCode && u.factionCode === factionCode)
     // update identifier to all units of this type
     if (sameUnits.length === 1) {
       // only one unit without identifier, add A to it then B to the new one
@@ -482,18 +482,17 @@ const updateUnitIdentifier = (roomUuid, unitCode, oldIdentifier, newIdentifier) 
     const factionCode = units[unitIndex].factionCode
     // update identifier
     rooms[roomUuid].units[unitIndex].identifier = newIdentifier
-    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed identifier ${oldIdentifier === '' ? '' : `from ${oldIdentifier}`} to ${newIdentifier}`)
+    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed identifier ${oldIdentifier === '' ? '' : `from ${oldIdentifier}`}to ${newIdentifier}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitIdentifier`)
   }
 }
 
-const updateUnitMen = (roomUuid, unitCode, identifier, men) => {
+const updateUnitMen = (roomUuid, factionCode, unitCode, identifier, men) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     // find unit
     const units = rooms[roomUuid].units
-    const unitIndex = units.findIndex(u => u.unitCode === unitCode && u.identifier === identifier)
-    const factionCode = units[unitIndex].factionCode
+    const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
     const previousMen = units[unitIndex].men
     const previousMaxHd = units[unitIndex].maxHd
     // update identifier and calculate new max hd
@@ -503,7 +502,7 @@ const updateUnitMen = (roomUuid, unitCode, identifier, men) => {
     createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed men value from ${previousMen} to ${men}`)
     createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed maxHd value from ${previousMaxHd} to ${men * unitShopItem.hdPerMen}`)
   } else {
-    console.error(`# Couldn't find room ${roomUuid} - updateUnitIdentifier`)
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitMen`)
   }
 }
 
