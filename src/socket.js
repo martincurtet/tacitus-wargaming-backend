@@ -36,7 +36,10 @@ const {
   readFactionStratAbility,
   updateFactionsStratAbility,
   nextStep,
-  readStep
+  readStep,
+  addUnit,
+  removeUnit,
+  updateUnitMen
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -56,7 +59,7 @@ module.exports = (server) => {
       let username = data.username
       if (/^[a-zA-Z0-9]*$/.test(username) && username !== '') {
         const [roomUuid, userUuid] = createRoom(username, socket.id)
-        socket.emit('room-created', { roomUuid: roomUuid, userUuid: userUuid, username: username, userColor: '#000000', isUserHost: true })
+        socket.emit('room-created', { roomUuid: roomUuid, userUuid: userUuid, username: username, userColor: '#000000', isHost: true, isSpectator: true })
       }
     })
 
@@ -65,7 +68,9 @@ module.exports = (server) => {
       // data: { roomUuid, userUuid, username }
       let roomUuid = data.roomUuid
       let userUuid = ''
-      let isUserHost = false
+      let userFaction = ''
+      let isHost = false
+      let isSpectator = false
       if (data.userUuid === '') {
         // New Player
         userUuid = createUser(roomUuid, socket.id, data.username)
@@ -74,7 +79,9 @@ module.exports = (server) => {
         if (readUserUuid(roomUuid, data.userUuid) !== undefined) {
           userUuid = readUserUuid(roomUuid, data.userUuid)
           updateUserSocket(roomUuid, userUuid, socket.id)
-          isUserHost = userUuid === readRoomHost(roomUuid)
+          isHost = userUuid === readRoomHost(roomUuid)
+          userFaction = readUserFaction(roomUuid, data.userUuid)
+          isSpectator = userFaction === ''
         }
       }
       // Load Room Data
@@ -84,18 +91,18 @@ module.exports = (server) => {
         userUuid: userUuid,
         username: data.username,
         userColor: '#000000',
-        isUserHost: isUserHost
+        userFaction: userFaction,
+        isHost: isHost,
+        isSpectator: isSpectator
       }
       socket.emit('room-joined', mergedData)
       createMessage(roomUuid, `System`, `${data.username} joined`)
-      // io.to(roomUuid).emit('message-sent', { messages: readMessages(roomUuid), log: readLog(roomUuid) })
       io.to(roomUuid).emit('user-joined', { users: readUsers(roomUuid), messages: readMessages(roomUuid), log: readLog(roomUuid) })
 
       // DISCONNECTING
       socket.on('disconnecting', () => {
         disconnectUser(roomUuid, userUuid)
         createMessage(roomUuid, `System`, `${data.username} left`)
-        // io.to(roomUuid).emit('message-sent', { messages: readMessages(roomUuid), log: readLog(roomUuid) })
         io.to(roomUuid).emit('user-left', { users: readUsers(roomUuid), messages: readMessages(roomUuid), log: readLog(roomUuid) })
       })
     })
@@ -112,7 +119,6 @@ module.exports = (server) => {
     })
 
     socket.on('assign-faction', (data) => {
-      // need to calculate faction stratAbility both previous and new one
       let currentUserFaction = readUserFaction(data.roomUuid, data.userUuid)
       if (currentUserFaction !== data.factionCode) {
         updateUserFaction(data.roomUuid, data.userUuid, data.factionCode)
@@ -129,9 +135,24 @@ module.exports = (server) => {
 
     // SETUP STEPS
     socket.on('next-step', (data) => {
-      console.log(data.roomUuid)
       nextStep(data.roomUuid)
       io.to(data.roomUuid).emit('step-next', { step: readStep(data.roomUuid) })
+    })
+
+    // SETUP STEP 2 - UNITS
+    socket.on('add-unit', (data) => {
+      addUnit(data.roomUuid, data.factionCode, data.unitCode)
+      io.to(data.roomUuid).emit('unit-added', { units: readUnits(data.roomUuid) })
+    })
+
+    socket.on('remove-unit', (data) => {
+      removeUnit(data.roomUuid, data.factionCode, data.unitCode, data.identifier)
+      io.to(data.roomUuid).emit('unit-removed', { units: readUnits(data.roomUuid) })
+    })
+
+    socket.on('change-men', (data) => {
+      updateUnitMen(data.roomUuid, data.factionCode, data.unitCode, data.identifier, data.men)
+      io.to(data.roomUuid).emit('men-changed', { units: readUnits(data.roomUuid) })
     })
 
     // GAMEPLAY
