@@ -68,8 +68,9 @@ module.exports = (server) => {
       // data: { roomUuid, userUuid, username }
       let roomUuid = data.roomUuid
       let userUuid = ''
+      let userFaction = ''
       let isHost = false
-      let isSpectator = true
+      let isSpectator = false
       if (data.userUuid === '') {
         // New Player
         userUuid = createUser(roomUuid, socket.id, data.username)
@@ -90,6 +91,7 @@ module.exports = (server) => {
         userUuid: userUuid,
         username: data.username,
         userColor: '#000000',
+        userFaction: userFaction,
         isHost: isHost,
         isSpectator: isSpectator
       }
