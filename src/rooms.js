@@ -403,7 +403,9 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
       hd: parseInt(unitShopItem.hdPerMen) * DEFAULT_MEN_VALUE, // calculated
       casualties: 0, // default value
       fatigue: 0, // default value
-      notes: '' // empty
+      notes: '', // empty
+      initiativeRaw: null,
+      initiative: null
     }
     // check if same unit type exists in faction
     const units = rooms[roomUuid].units
@@ -503,6 +505,18 @@ const updateUnitMen = (roomUuid, factionCode, unitCode, identifier, men) => {
     createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed maxHd value from ${previousMaxHd} to ${men * unitShopItem.hdPerMen}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitMen`)
+  }
+}
+
+const updateUnitsRawInitiative = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid].units
+    // assign random numbers from 0 to 20 to each unit
+    units.forEach(unit => {
+      unit.initiativeRaw = Math.floor(Math.random() * 21)
+    })
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitsRawInitiative`)
   }
 }
 
@@ -729,6 +743,7 @@ module.exports = {
   updateUnits,
   updateUnit,
   updateUnitMen,
+  updateUnitsRawInitiative,
   removeUnit,
 
   readLog,

@@ -39,7 +39,8 @@ const {
   readStep,
   addUnit,
   removeUnit,
-  updateUnitMen
+  updateUnitMen,
+  updateUnitsRawInitiative
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -135,8 +136,12 @@ module.exports = (server) => {
 
     // SETUP STEPS
     socket.on('next-step', (data) => {
+      if (readStep(data.roomUuid) === 2) {
+        // Going from Unit step to Initiative step
+        updateUnitsRawInitiative(data.roomUuid)
+      }
       nextStep(data.roomUuid)
-      io.to(data.roomUuid).emit('step-next', { step: readStep(data.roomUuid) })
+      io.to(data.roomUuid).emit('step-next', { step: readStep(data.roomUuid), units: readUnits(data.roomUuid) })
     })
 
     // SETUP STEP 2 - UNITS
