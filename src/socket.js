@@ -39,7 +39,9 @@ const {
   readStep,
   addUnit,
   removeUnit,
-  updateUnitMen
+  updateUnitMen,
+  updateUnitsRawInitiative,
+  updateUnitInitiative
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -135,8 +137,12 @@ module.exports = (server) => {
 
     // SETUP STEPS
     socket.on('next-step', (data) => {
+      if (readStep(data.roomUuid) === 2) {
+        // Going from Unit step to Initiative step
+        updateUnitsRawInitiative(data.roomUuid)
+      }
       nextStep(data.roomUuid)
-      io.to(data.roomUuid).emit('step-next', { step: readStep(data.roomUuid) })
+      io.to(data.roomUuid).emit('step-next', { step: readStep(data.roomUuid), units: readUnits(data.roomUuid) })
     })
 
     // SETUP STEP 2 - UNITS
@@ -153,6 +159,12 @@ module.exports = (server) => {
     socket.on('change-men', (data) => {
       updateUnitMen(data.roomUuid, data.factionCode, data.unitCode, data.identifier, data.men)
       io.to(data.roomUuid).emit('men-changed', { units: readUnits(data.roomUuid) })
+    })
+
+    // SETUP STEP 3 - INITIATIVE
+    socket.on('change-initiative', (data) => {
+      updateUnitInitiative(data.roomUuid, data.factionCode, data.unitCode, data.identifier, data.initiative)
+      io.to(data.roomUuid).emit('initiative-changed', { units: readUnits(data.roomUuid) })
     })
 
     // GAMEPLAY
