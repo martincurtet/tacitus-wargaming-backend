@@ -40,7 +40,8 @@ const {
   addUnit,
   removeUnit,
   updateUnitMen,
-  updateUnitsRawInitiative
+  updateUnitsRawInitiative,
+  updateUnitInitiative
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -158,6 +159,12 @@ module.exports = (server) => {
     socket.on('change-men', (data) => {
       updateUnitMen(data.roomUuid, data.factionCode, data.unitCode, data.identifier, data.men)
       io.to(data.roomUuid).emit('men-changed', { units: readUnits(data.roomUuid) })
+    })
+
+    // SETUP STEP 3 - INITIATIVE
+    socket.on('change-initiative', (data) => {
+      updateUnitInitiative(data.roomUuid, data.factionCode, data.unitCode, data.identifier, data.initiative)
+      io.to(data.roomUuid).emit('initiative-changed', { units: readUnits(data.roomUuid) })
     })
 
     // GAMEPLAY

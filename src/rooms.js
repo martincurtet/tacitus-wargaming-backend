@@ -520,6 +520,18 @@ const updateUnitsRawInitiative = (roomUuid) => {
   }
 }
 
+const updateUnitInitiative = (roomUuid, factionCode, unitCode, identifier, initiative) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid]
+    const unitIndex = units.find(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
+    units[unitIndex].initiative = initiative
+    units[unitIndex].initiativeRaw = null
+    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed initiative to ${initiative}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitInitiative`)
+  }
+}
+
 const removeUnit = (roomUuid, factionCode, unitCode, identifier) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const unitIndex = rooms[roomUuid].units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
@@ -744,6 +756,7 @@ module.exports = {
   updateUnit,
   updateUnitMen,
   updateUnitsRawInitiative,
+  updateUnitInitiative,
   removeUnit,
 
   readLog,
