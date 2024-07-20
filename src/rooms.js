@@ -522,9 +522,9 @@ const updateUnitsRawInitiative = (roomUuid) => {
 
 const updateUnitInitiative = (roomUuid, factionCode, unitCode, identifier, initiative) => {
   if (rooms.hasOwnProperty(roomUuid)) {
-    const units = rooms[roomUuid]
-    const unitIndex = units.find(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
-    units[unitIndex].initiative = initiative
+    const units = rooms[roomUuid].units
+    const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
+    units[unitIndex].initiative = parseInt(initiative)
     units[unitIndex].initiativeRaw = null
     createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed initiative to ${initiative}`)
   } else {
