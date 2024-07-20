@@ -513,7 +513,7 @@ const updateUnitsRawInitiative = (roomUuid) => {
     const units = rooms[roomUuid].units
     // assign random numbers from 0 to 20 to each unit
     units.forEach(unit => {
-      unit.initiativeRaw = Math.floor(Math.random() * 21)
+      unit.initiativeRaw = Math.floor(Math.random() * 20) + 1
     })
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitsRawInitiative`)
