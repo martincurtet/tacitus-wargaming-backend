@@ -16,9 +16,11 @@ let exampleRoom = {
   // step 3 initiative
   // step 4 board
   // step 5 play
+  boardSize: {
+    'rowNumber': 30,
+    'columnNumber': 30,
+  },
   board: {
-  'rows': 12,
-  'columns': 12,
   'drop-zone': [],
   // 'C2': { unit: 'KAR-SPE-0' },
   // 'D2': { unit: 'KAR-INF-1' },
@@ -56,9 +58,11 @@ const createRoom = (username, socketId) => {
     roomUuid: roomUuid,
     hostUuid: userUuid,
     step: 1,
+    boardSize: {
+      'rowNumber': 30,
+      'columnNumber': 30,
+    },
     board: {
-    'rows': 12,
-    'columns': 12,
     'drop-zone': [],
     },
     factionShop: factionShop,
@@ -153,19 +157,11 @@ const readBoard = (uuid) => {
   }
 }
 
-const readBoardRows = (uuid) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    return rooms[uuid].board['rows']
+const readBoardSize = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    return rooms[roomUuid].boardSize
   } else {
-    console.error(`# Couldn't find room ${uuid} - readBoardRows`)
-  }
-}
-
-const readBoardColumns = (uuid) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    return rooms[uuid].board['columns']
-  } else {
-    console.error(`# Couldn't find room ${uuid} - readBoardColumns`)
+    console.error(`# Couldn't find room ${roomUuid} - readBoardSize`)
   }
 }
 
@@ -178,15 +174,15 @@ const updateBoard = (uuid, board) => {
   }
 }
 
-const updateBoardSize = (uuid, newRows, newColumns) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    let oldRows = rooms[uuid].board['rows']
-    let oldColumns = rooms[uuid].board['columns']
-    rooms[uuid].board['rows'] = newRows
-    rooms[uuid].board['columns'] = newColumns
-    createLog(uuid, `Board size updated from r:${oldRows}, c:${oldColumns} to r:${newRows}, c:${newColumns}`)
+const updateBoardSize = (roomUuid, boardSize) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    let prevRowNumber = rooms[roomUuid].boardSize['rowNumber']
+    let prevColumnNumber = rooms[roomUuid].boardSize['columnNumber']
+    rooms[roomUuid].boardSize['rowNumber'] = boardSize['rowNumber']
+    rooms[roomUuid].boardSize['columnNumber'] = boardSize['columnNumber']
+    createLog(roomUuid, `Board size updated from r:${prevRowNumber}, c:${prevColumnNumber} to r:${boardSize['rowNumber']}, c:${boardSize['columnNumber']}`)
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoardSize`)
+    console.error(`# Couldn't find room ${roomUuid} - updateBoardSize`)
   }
 }
 
@@ -685,12 +681,12 @@ const readLog = (roomUuid) => {
   }
 }
 
-const createLog = (uuid, log) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    rooms[uuid].log.push({ timestamp: new Date().getTime(), log: log })
-    console.log(`[${uuid}] ${log}`)
+const createLog = (roomUuid, log) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    rooms[roomUuid].log.push({ timestamp: new Date().getTime(), log: log })
+    console.log(`[${roomUuid}] ${log}`)
   } else {
-    console.error(`# Couldn't find room ${uuid} - createLog`)
+    console.error(`# Couldn't find room ${roomUuid} - createLog`)
   }
 }
 
@@ -720,8 +716,7 @@ module.exports = {
   readStep,
 
   readBoard,
-  readBoardRows,
-  readBoardColumns,
+  readBoardSize,
   updateBoard,
   updateBoardSize,
   updateBoardTerrain,

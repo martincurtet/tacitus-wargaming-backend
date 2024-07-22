@@ -8,8 +8,7 @@ const {
   deleteUser,
   readRoom,
   readBoard,
-  readBoardRows,
-  readBoardColumns,
+  readBoardSize,
   updateBoard,
   updateBoardSize,
   updateFactions,
@@ -41,7 +40,7 @@ const {
   removeUnit,
   updateUnitMen,
   updateUnitsRawInitiative,
-  updateUnitInitiative
+  updateUnitInitiative,
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -167,6 +166,21 @@ module.exports = (server) => {
       io.to(data.roomUuid).emit('initiative-changed', { units: readUnits(data.roomUuid) })
     })
 
+    // SETUP STEP 4 - BOARD
+    socket.on('update-board-size', (data) => {
+      console.log(`receiving board size ${data.boardSize['rowNumber']} ${data.boardSize['columnNumber']}`)
+      updateBoardSize(data.roomUuid, data.boardSize)
+      io.to(data.roomUuid).emit('board-size-updated', { boardSize: readBoardSize(data.roomUuid), log: readLog(data.uuid) })
+    })
+
+    socket.on('update-board-terrain', (data) => {})
+    // socket.on('update-board-terrain', (data) => {
+    //   // update board terrain
+    //   // indicate wich terrain and cell zone (single, line, square)
+    //   updateBoardTerrain(data.uuid, data.terrain, data.zone)
+    //   io.to(data.uuid).emit('board-terrain-updated', { board: readBoard(data.uuid), log: readLog(data.uuid) })
+    // })
+
     // GAMEPLAY
 
     // BOARD
@@ -174,18 +188,6 @@ module.exports = (server) => {
     //   // console.info(data.board)
     //   updateBoard(data.uuid, data.board)
     //   io.to(data.uuid).emit('board-updated', { board: readBoard(data.uuid), log: readLog(data.uuid) })
-    // })
-
-    // socket.on('update-board-size', (data) => {
-    //   updateBoardSize(data.uuid, data.rows, data.columns)
-    //   io.to(data.uuid).emit('board-size-updated', { rows: readBoardRows(data.uuid), columns: readBoardColumns(data.uuid), log: readLog(data.uuid) })
-    // })
-
-    // socket.on('update-board-terrain', (data) => {
-    //   // update board terrain
-    //   // indicate wich terrain and cell zone (single, line, square)
-    //   updateBoardTerrain(data.uuid, data.terrain, data.zone)
-    //   io.to(data.uuid).emit('board-terrain-updated', { board: readBoard(data.uuid), log: readLog(data.uuid) })
     // })
 
     // socket.on('update-board-unit', (data) => {
