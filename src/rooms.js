@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid')
 const { unitShop, compareUnits, calculateCasualties } = require('./units')
 const { factionShop } = require('./factions')
+const { calculateCellRange, terrainColorMap } = require('./functions')
 
 const DEFAULT_MEN_VALUE = 20
 
@@ -21,8 +22,7 @@ let exampleRoom = {
     'columnNumber': 30,
   },
   board: {
-  'drop-zone': [],
-  // 'C2': { unit: 'KAR-SPE-0' },
+  // 'C2': { unit: 'KAR-SPE-0', terrainType: 'plain', terrainColor: '#000000' },
   // 'D2': { unit: 'KAR-INF-1' },
   // 'B7': { unit: 'CRI-ARC-1-A' },
   // 'D7': { unit: 'CRI-ARC-1-B' },
@@ -62,9 +62,7 @@ const createRoom = (username, socketId) => {
       'rowNumber': 30,
       'columnNumber': 30,
     },
-    board: {
-    'drop-zone': [],
-    },
+    board: {},
     factionShop: factionShop,
     // faction strategic ability modifier FSAM
     // not present during creation, get set up during step 1
@@ -186,7 +184,7 @@ const updateBoardSize = (roomUuid, boardSize) => {
   }
 }
 
-const updateBoardTerrain = (uuid, terrain, zone) => {
+const updateBoardTerrainZone = (uuid, terrain, zone) => {
   if (rooms.hasOwnProperty(uuid)) {
     // zone is list of cells, need to paint the terrain
     // get board, add rules
@@ -198,6 +196,23 @@ const updateBoardTerrain = (uuid, terrain, zone) => {
     createLog(uuid, `Board terrain updated with ${terrain} terrain on zone: ${zone}`)
   } else {
     console.error(`# Couldn't find room ${uuid} - updateBoardTerrain`)
+  }
+}
+
+const updateBoardTerrain = (roomUuid, startCell, endCell, terrainType) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const zone = calculateCellRange(startCell, endCell)
+    let board = rooms[roomUuid].board
+    zone.forEach(cell => {
+      board[cell] = {
+        ...board[cell],
+        terrainType: terrainType,
+        terrainColor: terrainColorMap[terrainType]
+      }
+    })
+    createLog(roomUuid, `${terrainType} terrain type applied between cells ${startCell} and ${endCell}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateBoardTerrain`)
   }
 }
 

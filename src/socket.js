@@ -173,13 +173,10 @@ module.exports = (server) => {
       io.to(data.roomUuid).emit('board-size-updated', { boardSize: readBoardSize(data.roomUuid), log: readLog(data.uuid) })
     })
 
-    socket.on('update-board-terrain', (data) => {})
-    // socket.on('update-board-terrain', (data) => {
-    //   // update board terrain
-    //   // indicate wich terrain and cell zone (single, line, square)
-    //   updateBoardTerrain(data.uuid, data.terrain, data.zone)
-    //   io.to(data.uuid).emit('board-terrain-updated', { board: readBoard(data.uuid), log: readLog(data.uuid) })
-    // })
+    socket.on('update-board-terrain', (data) => {
+      updateBoardTerrain(data.roomUuid, data.startCell, data.endCell, data.terrainType)
+      io.to(data.roomUuid).emit('board-terrain-updated', { board: readBoard(data.roomUuid), log: readLog(data.roomUuid) })
+    })
 
     // GAMEPLAY
 
