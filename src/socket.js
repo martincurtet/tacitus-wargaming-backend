@@ -41,6 +41,7 @@ const {
   updateUnitMen,
   updateUnitsRawInitiative,
   updateUnitInitiative,
+  updateUnitCoordinates,
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -176,6 +177,15 @@ module.exports = (server) => {
     socket.on('update-board-terrain', (data) => {
       updateBoardTerrain(data.roomUuid, data.startCell, data.endCell, data.terrainType)
       io.to(data.roomUuid).emit('board-terrain-updated', { board: readBoard(data.roomUuid), log: readLog(data.roomUuid) })
+    })
+
+    socket.on('update-unit-coordinates', (data) => {
+      const unitFullCodeSplit = data.unitFullCode.split('-')
+      const factionCode = unitFullCodeSplit[0] || ''
+      const unitCode = unitFullCodeSplit[1] || ''
+      const identifier = unitFullCodeSplit[2] || ''
+      updateUnitCoordinates(data.roomUuid, factionCode, unitCode, identifier, data.coordinates)
+      io.to(data.roomUuid).emit('unit-coordinates-updated', { board: readBoard(data.roomUuid), units: readUnits(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
     // GAMEPLAY

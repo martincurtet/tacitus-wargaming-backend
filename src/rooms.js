@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require('uuid')
 const { unitShop, compareUnits, calculateCasualties } = require('./units')
 const { factionShop } = require('./factions')
 const { calculateCellRange, terrainColorMap } = require('./functions')
+const { veterancyMap } = require('./veterancy')
 
 const DEFAULT_MEN_VALUE = 20
 
@@ -22,7 +23,7 @@ let exampleRoom = {
     'columnNumber': 30,
   },
   board: {
-  // 'C2': { unit: 'KAR-SPE-0', terrainType: 'plain', terrainColor: '#000000' },
+  // 'C2': { terrainType: 'plain', terrainColor: '#000000', unitFullCode: '', unitIcon: '', factionIcon: '', veterancyIcon: '' },
   // 'D2': { unit: 'KAR-INF-1' },
   // 'B7': { unit: 'CRI-ARC-1-A' },
   // 'D7': { unit: 'CRI-ARC-1-B' },
@@ -416,7 +417,8 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
       fatigue: 0, // default value
       notes: '', // empty
       initiativeRaw: null,
-      initiative: null
+      initiative: null,
+      coordinates: ''
     }
     // check if same unit type exists in faction
     const units = rooms[roomUuid].units
@@ -540,6 +542,46 @@ const updateUnitInitiative = (roomUuid, factionCode, unitCode, identifier, initi
     createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed initiative to ${initiative}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitInitiative`)
+  }
+}
+
+const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coordinates) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid].units
+    const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
+    const prevCoordinates = units[unitIndex].coordinates
+    units[unitIndex].coordinates = coordinates
+    // add unit in board cell
+    const board = rooms[roomUuid].board
+    const factions = rooms[roomUuid].factions
+    board[coordinates] = {
+      ...board[coordinates],
+      unitFullCode: `${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`}`,
+      unitIcon: units[unitIndex].iconName,
+      factionIcon: factions.find(f => f.code === factionCode).icon,
+      veterancyIcon: veterancyMap[parseInt(units[unitIndex].veterancy)].iconName
+    }
+    // board[coordinates].unitFullCode = `${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`}`
+    // board[coordinates].unitIcon = units[unitIndex].iconName
+    // board[coordinates].factionIcon = factions.find(f => f.code === factionCode).icon
+    // board[coordinates].veterancyIcon = veterancyMap[parseInt(units[unitIndex].veterancy)]
+    // remove unit from previous board cell
+    if (prevCoordinates !== '') {
+      board[prevCoordinates] = {
+        ...board[prevCoordinates],
+        unitFullCode: '',
+        unitIcon: '',
+        factionIcon: '',
+        veterancyIcon: ''
+      }
+      // board[prevCoordinates].unitFullCode = ''
+      // board[prevCoordinates].unitIcon = ''
+      // board[prevCoordinates].factionIcon = ''
+      // board[prevCoordinates].veterancyIcon = ''
+    }
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed coordinates from ${prevCoordinates} to ${coordinates}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitCoordinates`)
   }
 }
 
@@ -767,6 +809,7 @@ module.exports = {
   updateUnitMen,
   updateUnitsRawInitiative,
   updateUnitInitiative,
+  updateUnitCoordinates,
   removeUnit,
 
   readLog,
