@@ -1,6 +1,8 @@
 const { v4: uuidv4 } = require('uuid')
 const { unitShop, compareUnits, calculateCasualties } = require('./units')
 const { factionShop } = require('./factions')
+const { calculateCellRange, terrainColorMap } = require('./functions')
+const { veterancyMap } = require('./veterancy')
 
 const DEFAULT_MEN_VALUE = 20
 
@@ -16,11 +18,12 @@ let exampleRoom = {
   // step 3 initiative
   // step 4 board
   // step 5 play
+  boardSize: {
+    'rowNumber': 30,
+    'columnNumber': 30,
+  },
   board: {
-  'rows': 12,
-  'columns': 12,
-  'drop-zone': [],
-  // 'C2': { unit: 'KAR-SPE-0' },
+  // 'C2': { terrainType: 'plain', terrainColor: '#000000', unitFullCode: '', unitIcon: '', factionIcon: '', veterancyIcon: '' },
   // 'D2': { unit: 'KAR-INF-1' },
   // 'B7': { unit: 'CRI-ARC-1-A' },
   // 'D7': { unit: 'CRI-ARC-1-B' },
@@ -56,11 +59,11 @@ const createRoom = (username, socketId) => {
     roomUuid: roomUuid,
     hostUuid: userUuid,
     step: 1,
-    board: {
-    'rows': 12,
-    'columns': 12,
-    'drop-zone': [],
+    boardSize: {
+      'rowNumber': 30,
+      'columnNumber': 30,
     },
+    board: {},
     factionShop: factionShop,
     // faction strategic ability modifier FSAM
     // not present during creation, get set up during step 1
@@ -153,19 +156,11 @@ const readBoard = (uuid) => {
   }
 }
 
-const readBoardRows = (uuid) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    return rooms[uuid].board['rows']
+const readBoardSize = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    return rooms[roomUuid].boardSize
   } else {
-    console.error(`# Couldn't find room ${uuid} - readBoardRows`)
-  }
-}
-
-const readBoardColumns = (uuid) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    return rooms[uuid].board['columns']
-  } else {
-    console.error(`# Couldn't find room ${uuid} - readBoardColumns`)
+    console.error(`# Couldn't find room ${roomUuid} - readBoardSize`)
   }
 }
 
@@ -178,19 +173,19 @@ const updateBoard = (uuid, board) => {
   }
 }
 
-const updateBoardSize = (uuid, newRows, newColumns) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    let oldRows = rooms[uuid].board['rows']
-    let oldColumns = rooms[uuid].board['columns']
-    rooms[uuid].board['rows'] = newRows
-    rooms[uuid].board['columns'] = newColumns
-    createLog(uuid, `Board size updated from r:${oldRows}, c:${oldColumns} to r:${newRows}, c:${newColumns}`)
+const updateBoardSize = (roomUuid, boardSize) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    let prevRowNumber = rooms[roomUuid].boardSize['rowNumber']
+    let prevColumnNumber = rooms[roomUuid].boardSize['columnNumber']
+    rooms[roomUuid].boardSize['rowNumber'] = boardSize['rowNumber']
+    rooms[roomUuid].boardSize['columnNumber'] = boardSize['columnNumber']
+    createLog(roomUuid, `Board size updated from r:${prevRowNumber}, c:${prevColumnNumber} to r:${boardSize['rowNumber']}, c:${boardSize['columnNumber']}`)
   } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoardSize`)
+    console.error(`# Couldn't find room ${roomUuid} - updateBoardSize`)
   }
 }
 
-const updateBoardTerrain = (uuid, terrain, zone) => {
+const updateBoardTerrainZone = (uuid, terrain, zone) => {
   if (rooms.hasOwnProperty(uuid)) {
     // zone is list of cells, need to paint the terrain
     // get board, add rules
@@ -202,6 +197,23 @@ const updateBoardTerrain = (uuid, terrain, zone) => {
     createLog(uuid, `Board terrain updated with ${terrain} terrain on zone: ${zone}`)
   } else {
     console.error(`# Couldn't find room ${uuid} - updateBoardTerrain`)
+  }
+}
+
+const updateBoardTerrain = (roomUuid, startCell, endCell, terrainType) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const zone = calculateCellRange(startCell, endCell)
+    let board = rooms[roomUuid].board
+    zone.forEach(cell => {
+      board[cell] = {
+        ...board[cell],
+        terrainType: terrainType,
+        terrainColor: terrainColorMap[terrainType]
+      }
+    })
+    createLog(roomUuid, `${terrainType} terrain type applied between cells ${startCell} and ${endCell}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateBoardTerrain`)
   }
 }
 
@@ -405,7 +417,8 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
       fatigue: 0, // default value
       notes: '', // empty
       initiativeRaw: null,
-      initiative: null
+      initiative: null,
+      coordinates: ''
     }
     // check if same unit type exists in faction
     const units = rooms[roomUuid].units
@@ -529,6 +542,46 @@ const updateUnitInitiative = (roomUuid, factionCode, unitCode, identifier, initi
     createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed initiative to ${initiative}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitInitiative`)
+  }
+}
+
+const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coordinates) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid].units
+    const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
+    const prevCoordinates = units[unitIndex].coordinates
+    units[unitIndex].coordinates = coordinates
+    // add unit in board cell
+    const board = rooms[roomUuid].board
+    const factions = rooms[roomUuid].factions
+    board[coordinates] = {
+      ...board[coordinates],
+      unitFullCode: `${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`}`,
+      unitIcon: units[unitIndex].iconName,
+      factionIcon: factions.find(f => f.code === factionCode).icon,
+      veterancyIcon: veterancyMap[parseInt(units[unitIndex].veterancy)].iconName
+    }
+    // board[coordinates].unitFullCode = `${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`}`
+    // board[coordinates].unitIcon = units[unitIndex].iconName
+    // board[coordinates].factionIcon = factions.find(f => f.code === factionCode).icon
+    // board[coordinates].veterancyIcon = veterancyMap[parseInt(units[unitIndex].veterancy)]
+    // remove unit from previous board cell
+    if (prevCoordinates !== '') {
+      board[prevCoordinates] = {
+        ...board[prevCoordinates],
+        unitFullCode: '',
+        unitIcon: '',
+        factionIcon: '',
+        veterancyIcon: ''
+      }
+      // board[prevCoordinates].unitFullCode = ''
+      // board[prevCoordinates].unitIcon = ''
+      // board[prevCoordinates].factionIcon = ''
+      // board[prevCoordinates].veterancyIcon = ''
+    }
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed coordinates from ${prevCoordinates} to ${coordinates}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitCoordinates`)
   }
 }
 
@@ -685,12 +738,12 @@ const readLog = (roomUuid) => {
   }
 }
 
-const createLog = (uuid, log) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    rooms[uuid].log.push({ timestamp: new Date().getTime(), log: log })
-    console.log(`[${uuid}] ${log}`)
+const createLog = (roomUuid, log) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    rooms[roomUuid].log.push({ timestamp: new Date().getTime(), log: log })
+    console.log(`[${roomUuid}] ${log}`)
   } else {
-    console.error(`# Couldn't find room ${uuid} - createLog`)
+    console.error(`# Couldn't find room ${roomUuid} - createLog`)
   }
 }
 
@@ -720,8 +773,7 @@ module.exports = {
   readStep,
 
   readBoard,
-  readBoardRows,
-  readBoardColumns,
+  readBoardSize,
   updateBoard,
   updateBoardSize,
   updateBoardTerrain,
@@ -757,6 +809,7 @@ module.exports = {
   updateUnitMen,
   updateUnitsRawInitiative,
   updateUnitInitiative,
+  updateUnitCoordinates,
   removeUnit,
 
   readLog,
