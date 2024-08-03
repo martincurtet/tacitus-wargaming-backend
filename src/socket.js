@@ -44,6 +44,7 @@ const {
   updateUnitCoordinates,
   updateUnitHd,
   updateUnitFatigue,
+  updateUnitNotes,
 } = require('./rooms')
 
 module.exports = (server) => {
