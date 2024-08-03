@@ -585,6 +585,41 @@ const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coor
   }
 }
 
+const updateUnitHd = (roomUuid, factionCode, unitCode, identifier, hd) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid].units
+    const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
+    const prevHd = units[unitIndex].hd
+    units[unitIndex].hd = parseInt(hd)
+    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed hd from ${prevHd} to ${hd}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitHd`)
+  }
+}
+
+const updateUnitFatigue = (roomUuid, factionCode, unitCode, identifier, fatigue) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid].units
+    const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
+    const prevFatigue = units[unitIndex].fatigue
+    units[unitIndex].fatigue = parseInt(fatigue)
+    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed hd from ${prevFatigue} to ${fatigue}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitFatigue`)
+  }
+}
+
+const updateUnitNotes = (roomUuid, factionCode, unitCode, identifier, notes) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid].units
+    const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
+    units[unitIndex].notes = notes
+    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed notes to ${notes}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitFatigue`)
+  }
+}
+
 const removeUnit = (roomUuid, factionCode, unitCode, identifier) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const unitIndex = rooms[roomUuid].units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
@@ -810,6 +845,9 @@ module.exports = {
   updateUnitsRawInitiative,
   updateUnitInitiative,
   updateUnitCoordinates,
+  updateUnitHd,
+  updateUnitFatigue,
+  updateUnitNotes,
   removeUnit,
 
   readLog,

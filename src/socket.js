@@ -42,6 +42,8 @@ const {
   updateUnitsRawInitiative,
   updateUnitInitiative,
   updateUnitCoordinates,
+  updateUnitHd,
+  updateUnitFatigue,
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -191,22 +193,23 @@ module.exports = (server) => {
     // GAMEPLAY
 
     // BOARD
-    // socket.on('update-board', (data) => {
-    //   // console.info(data.board)
-    //   updateBoard(data.uuid, data.board)
-    //   io.to(data.uuid).emit('board-updated', { board: readBoard(data.uuid), log: readLog(data.uuid) })
-    // })
+    // Use update-unit-coordinate
 
-    // socket.on('update-board-unit', (data) => {
-    //   updateBoardUnit(data.uuid, data.unitCode, data.startingCell, data.droppingCell)
-    //   io.to(data.uuid).emit('board-unit-updated', { board: readBoard(data.uuid), log: readLog(data.uuid) })
-    // })
+    // UNITS
+    socket.on('update-unit-hd', (data) => {
+      updateUnitHd(data.roomUuid, data.factionCode, data.unitCode, data.identifier, data.hd)
+      io.to(data.roomUuid).emit('unit-hd-updated', { units: readUnits(data.roomUuid), log: readLog(data.roomUuid) })
+    })
 
-    // FACTIONS
-    // socket.on('update-factions', (data) => {
-    //   updateFactions(data.uuid, data.factions)
-    //   io.to(data.uuid).emit('factions-updated', { factions: readFactions(data.uuid), log: readLog(data.uuid) })
-    // })
+    socket.on('update-unit-fatigue', (data) => {
+      updateUnitFatigue(data.roomUuid, data.factionCode, data.unitCode, data.identifier, data.fatigue)
+      io.to(data.roomUuid).emit('unit-fatigue-updated', { units: readUnits(data.roomUuid), log: readLog(data.roomUuid) })
+    })
+
+    socket.on('update-unit-notes', (data) => {
+      updateUnitNotes(data.roomUuid, data.factionCode, data.unitCode, data.identifier, data.notes)
+      io.to(data.roomUuid).emit('unit-notes-updated', { units: readUnits(data.roomUuid), log: readLog(data.roomUuid) })
+    })
 
     // MESSAGES
     socket.on('send-message', (data) => {
@@ -214,23 +217,6 @@ module.exports = (server) => {
       io.to(data.uuid).emit('message-sent', { messages: readMessages(data.uuid), log: readLog(data.uuid) })
     })
 
-    // UNITS
-    // socket.on('update-units', (data) => {
-    //   updateUnits(data.uuid, data.units)
-    //   io.to(data.uuid).emit('units-updated', { units: readUnits(data.uuid), board: readBoard(data.uuid), log: readLog(data.uuid) })
-    // })
-
-    // socket.on('update-unit', (data) => {
-    //   // for unit hd, casualties, fatigue, notes
-    //   updateUnit(data.uuid, data.unitCode, data.unitData)
-    //   io.to(data.uuid).emit('unit-updated', { units: readUnits(data.uuid), log: readLog(data.uuid) })
-    // })
-
-    // UNIT MANAGER SUBMIT
-    // socket.on('update-factions-units', (data) => {
-    //   updateFactionsUnits(data.uuid, data.factions, data.units)
-    //   io.to(data.uuid).emit('factions-units-updated', { factions: readFactions(data.uuid), units: readUnits(data.uuid), board: readBoard(data.uuid), log: readLog(data.uuid) })
-    // })
 
     // DISCONNECT
     socket.on('disconnect', () => {
