@@ -592,7 +592,10 @@ const updateUnitHd = (roomUuid, factionCode, unitCode, identifier, hd) => {
     const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
     const prevHd = units[unitIndex].hd
     units[unitIndex].hd = parseInt(hd)
-    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed hd from ${prevHd} to ${hd}`)
+    const prevCasualties = units[unitIndex].casualties
+    const casualties = calculateCasualties(parseInt(hd), parseInt(units[unitIndex].maxHd), units[unitIndex].veterancy)
+    units[unitIndex].casualties = casualties
+    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed hd from ${prevHd} to ${hd}${casualties === 0 ? '' : `and casualties from ${prevCasualties} to ${casualties}`}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitHd`)
   }
