@@ -373,11 +373,11 @@ const removeFaction = (roomUuid, factionCode) => {
 }
 
 // MESSAGE CRUD
-const createMessage = (uuid, username, message) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    rooms[uuid].messages.push({ timestamp: new Date().getTime(), username: username, message: message })
+const createMessage = (roomUuid, username, message) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    rooms[roomUuid].messages.push({ timestamp: new Date().getTime(), username: username, message: message })
   } else {
-    console.error(`# Couldn't find room ${uuid} - createMessage`)
+    console.error(`# Couldn't find room ${roomUuid} - createMessage`)
   }
 }
 

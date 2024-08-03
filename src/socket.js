@@ -214,10 +214,9 @@ module.exports = (server) => {
 
     // MESSAGES
     socket.on('send-message', (data) => {
-      createMessage(data.uuid, readUsername(data.uuid, socket.id), data.message)
-      io.to(data.uuid).emit('message-sent', { messages: readMessages(data.uuid), log: readLog(data.uuid) })
+      createMessage(data.roomUuid, data.username, data.message)
+      io.to(data.roomUuid).emit('message-sent', { messages: readMessages(data.roomUuid), log: readLog(data.roomUuid) })
     })
-
 
     // DISCONNECT
     socket.on('disconnect', () => {
