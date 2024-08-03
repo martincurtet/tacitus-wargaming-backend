@@ -514,6 +514,7 @@ const updateUnitMen = (roomUuid, factionCode, unitCode, identifier, men) => {
     units[unitIndex].men = men
     const unitShopItem = unitShop.find(u => u.code === unitCode)
     units[unitIndex].maxHd = parseInt(men * unitShopItem.hdPerMen)
+    units[unitIndex].hd = parseInt(men * unitShopItem.hdPerMen)
     createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed men value from ${previousMen} to ${men}`)
     createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed maxHd value from ${previousMaxHd} to ${men * unitShopItem.hdPerMen}`)
   } else {
