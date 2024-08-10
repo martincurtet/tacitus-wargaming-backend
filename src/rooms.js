@@ -525,9 +525,13 @@ const updateUnitMen = (roomUuid, factionCode, unitCode, identifier, men) => {
 const updateUnitsRawInitiative = (roomUuid) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const units = rooms[roomUuid].units
-    // assign random numbers from 0 to 20 to each unit
+    const initiativeMap = {}
     units.forEach(unit => {
-      unit.initiativeRaw = Math.floor(Math.random() * 20) + 1
+      const unitType = `${unit.factionCode}-${unit.unitCode}`
+      if (!initiativeMap.hasOwnProperty(unitType)) {
+        initiativeMap[unitType] = Math.floor(Math.random() * 20) + 1
+      }
+      unit.initiativeRaw = initiativeMap[unitType]
     })
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitsRawInitiative`)
