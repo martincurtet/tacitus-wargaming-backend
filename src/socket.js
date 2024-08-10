@@ -45,6 +45,7 @@ const {
   updateUnitHd,
   updateUnitFatigue,
   updateUnitNotes,
+  updateUnitTypeInitiative,
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -166,7 +167,7 @@ module.exports = (server) => {
 
     // SETUP STEP 3 - INITIATIVE
     socket.on('change-initiative', (data) => {
-      updateUnitInitiative(data.roomUuid, data.factionCode, data.unitCode, data.identifier, data.initiative)
+      updateUnitTypeInitiative(data.roomUuid, data.factionCode, data.unitCode, data.initiative)
       io.to(data.roomUuid).emit('initiative-changed', { units: readUnits(data.roomUuid) })
     })
 

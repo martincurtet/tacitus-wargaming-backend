@@ -533,6 +533,7 @@ const updateUnitsRawInitiative = (roomUuid) => {
       }
       unit.initiativeRaw = initiativeMap[unitType]
     })
+    createLog(roomUuid, `Units raw initiative assigned`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitsRawInitiative`)
   }
@@ -544,9 +545,24 @@ const updateUnitInitiative = (roomUuid, factionCode, unitCode, identifier, initi
     const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
     units[unitIndex].initiative = parseInt(initiative)
     units[unitIndex].initiativeRaw = null
-    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed initiative to ${initiative}`)
+    createLog(roomUuid, `Unit ${unitCode}-${identifier} in faction ${factionCode} changed initiative to ${initiative}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitInitiative`)
+  }
+}
+
+const updateUnitTypeInitiative = (roomUuid, factionCode, unitCode, initiative) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid].units
+    units.forEach(unit => {
+      if (unit.factionCode === factionCode && unit.unitCode === unitCode) {
+        unit.initiative = parseInt(initiative)
+        unit.initiativeRaw = null
+      }
+    })
+    createLog(roomUuid, `Unit type ${factionCode}-${unitCode} changed initiative to ${initiative}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitTypeInitiative`)
   }
 }
 
@@ -852,6 +868,7 @@ module.exports = {
   updateUnitMen,
   updateUnitsRawInitiative,
   updateUnitInitiative,
+  updateUnitTypeInitiative,
   updateUnitCoordinates,
   updateUnitHd,
   updateUnitFatigue,
