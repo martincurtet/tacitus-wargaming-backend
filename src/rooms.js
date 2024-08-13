@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid')
 const { unitShop, compareUnits, calculateCasualties } = require('./units')
 const { factionShop } = require('./factions')
-const { calculateCellRange, terrainColorMap } = require('./functions')
+const { calculateCellRange, terrainColorMap, findClosestFreeTile } = require('./functions')
 const { veterancyMap } = require('./veterancy')
 
 const DEFAULT_MEN_VALUE = 20
@@ -419,6 +419,7 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
       initiativeRaw: null,
       initiative: null,
       coordinates: '',
+      deathCoordinates: '',
       isAlive: true,
     }
     // check if same unit type exists in faction
@@ -625,7 +626,7 @@ const updateUnitHd = (roomUuid, factionCode, unitCode, identifier, hd) => {
     const prevCasualties = units[unitIndex].casualties
     const casualties = calculateCasualties(parseInt(hd), parseInt(units[unitIndex].maxHd), units[unitIndex].veterancy)
     units[unitIndex].casualties = casualties
-    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed hd from ${prevHd} to ${hd}${casualties === 0 ? '' : `and casualties from ${prevCasualties} to ${casualties}`}`)
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed hd from ${prevHd} to ${hd} ${casualties === 0 ? '' : `and casualties from ${prevCasualties} to ${casualties}`}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitHd`)
   }
@@ -637,7 +638,7 @@ const updateUnitFatigue = (roomUuid, factionCode, unitCode, identifier, fatigue)
     const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
     const prevFatigue = units[unitIndex].fatigue
     units[unitIndex].fatigue = parseInt(fatigue)
-    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`}  changed hd from ${prevFatigue} to ${fatigue}`)
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed fatigue from ${prevFatigue} to ${fatigue}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitFatigue`)
   }
@@ -654,14 +655,54 @@ const updateUnitNotes = (roomUuid, factionCode, unitCode, identifier, notes) => 
   }
 }
 
-const updateUnitLife = (roomUuid, factionCode, unitCode, identifier, isAlive) => {
+const killUnit = (roomUuid, coordinates) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const units = rooms[roomUuid].units
-    const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
-    units[unitIndex].isAlive = isAlive
-    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} was ${isAlive ? 'revived' : 'killed'}`)
+    const board = rooms[roomUuid].board
+
+    const unitIndex = units.findIndex(u => u.coordinates === coordinates)
+    if (unitIndex === -1) return
+    units[unitIndex].isAlive = false
+    units[unitIndex].deathCoordinates = units[unitIndex].coordinates
+    units[unitIndex].coordinates = ''
+    board[coordinates] = {
+      ...board[coordinates],
+      unitFullCode: '',
+      unitIcon: '',
+      factionIcon: '',
+      veterancyIcon: ''
+    }
+    createLog(roomUuid, `Unit ${units[unitIndex].factionCode}-${units[unitIndex].unitCode}${units[unitIndex].identifier === '' ? '' : `-${units[unitIndex].identifier}`} was killed`)
   } else {
-    console.error(`# Couldn't find room ${roomUuid} - updateUnitLife`)
+    console.error(`# Couldn't find room ${roomUuid} - killUnit`)
+  }
+}
+
+const reviveUnit = (roomUuid, factionCode, unitCode, identifier) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid].units
+    const board = rooms[roomUuid].board
+    const boardSize = rooms[roomUuid].boardSize
+    const factions = rooms[roomUuid].factions
+
+    const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
+    if (unitIndex === -1) return
+    units[unitIndex].isAlive = true
+
+    let newCoordinates = findClosestFreeTile(board, units[unitIndex].deathCoordinates, boardSize['rowNumber'], boardSize['columnNumber'])
+
+    units[unitIndex].coordinates = newCoordinates
+    units[unitIndex].deathCoordinates = ''
+    board[newCoordinates] = {
+      ...board[newCoordinates],
+      unitFullCode: `${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`}`,
+      unitIcon: units[unitIndex].iconName,
+      factionIcon: factions.find(f => f.code === factionCode).icon,
+      veterancyIcon: veterancyMap[parseInt(units[unitIndex].veterancy)].iconName
+    }
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} was revived on cell ${newCoordinates}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - reviveUnit`)
   }
 }
 
@@ -894,7 +935,7 @@ module.exports = {
   updateUnitHd,
   updateUnitFatigue,
   updateUnitNotes,
-  updateUnitLife,
+  killUnit, reviveUnit,
   reorderUnitsByInitiative,
   removeUnit,
 

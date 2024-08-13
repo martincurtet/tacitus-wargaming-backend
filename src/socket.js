@@ -47,7 +47,8 @@ const {
   updateUnitNotes,
   updateUnitTypeInitiative,
   reorderUnitsByInitiative,
-  updateUnitLife,
+  killUnit,
+  reviveUnit,
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -200,13 +201,13 @@ module.exports = (server) => {
 
     // GAMEPLAY
     socket.on('kill-unit', (data) => {
-      updateUnitLife(data.roomUuid, data.factionCode, data.unitCode, data.identifier, false)
-      io.to(data.roomUuid).emit('unit-killed', { units: readUnits(data.roomUuid) })
+      killUnit(data.roomUuid, data.coordinates)
+      io.to(data.roomUuid).emit('unit-killed', { board: readBoard(data.roomUuid), units: readUnits(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
     socket.on('revive-unit', (data) => {
-      updateUnitLife(data.roomUuid, data.factionCode, data.unitCode, data.identifier, true)
-      io.to(data.roomUuid).emit('unit-revived', { units: readUnits(data.roomUuid) })
+      reviveUnit(data.roomUuid, data.factionCode, data.unitCode, data.identifier)
+      io.to(data.roomUuid).emit('unit-revived', { board: readBoard(data.roomUuid), units: readUnits(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
     // BOARD
