@@ -46,6 +46,7 @@ const {
   updateUnitFatigue,
   updateUnitNotes,
   updateUnitTypeInitiative,
+  reorderUnitsByInitiative,
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -144,6 +145,10 @@ module.exports = (server) => {
       if (readStep(data.roomUuid) === 2) {
         // Going from Unit step to Initiative step
         updateUnitsRawInitiative(data.roomUuid)
+      }
+      if (readStep(data.roomUuid) === 3) {
+        // Going from Initiative step to Board step
+        reorderUnitsByInitiative(data.roomUuid)
       }
       nextStep(data.roomUuid)
       io.to(data.roomUuid).emit('step-next', { step: readStep(data.roomUuid), units: readUnits(data.roomUuid) })

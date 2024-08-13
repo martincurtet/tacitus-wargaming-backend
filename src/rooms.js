@@ -566,6 +566,15 @@ const updateUnitTypeInitiative = (roomUuid, factionCode, unitCode, initiative) =
   }
 }
 
+const reorderUnitsByInitiative = (roomUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    rooms[roomUuid].units.sort((a, b) => b.initiative - a.initiative)
+    console.log(roomUuid, `Units have been reordered by initiative`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - reorderUnitsByInitiative`)
+  }
+}
+
 const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coordinates) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const units = rooms[roomUuid].units
@@ -873,6 +882,7 @@ module.exports = {
   updateUnitHd,
   updateUnitFatigue,
   updateUnitNotes,
+  reorderUnitsByInitiative,
   removeUnit,
 
   readLog,
