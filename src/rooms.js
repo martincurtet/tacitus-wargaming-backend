@@ -418,7 +418,8 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
       notes: '', // empty
       initiativeRaw: null,
       initiative: null,
-      coordinates: ''
+      coordinates: '',
+      isAlive: true,
     }
     // check if same unit type exists in faction
     const units = rooms[roomUuid].units
@@ -443,7 +444,7 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
     }
     // push unit
     rooms[roomUuid].units.push(newUnit)
-    createLog(roomUuid, `Unit ${unitCode} ${newUnit.identifier === '' ? '' : `${newUnit.identifier} `}added to faction ${factionCode}`)
+    createLog(roomUuid, `Unit ${unitCode}${newUnit.identifier === '' ? '' : `-${newUnit.identifier} `}added to faction ${factionCode}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - addUnit`)
   }
@@ -497,7 +498,7 @@ const updateUnitIdentifier = (roomUuid, unitCode, oldIdentifier, newIdentifier) 
     const factionCode = units[unitIndex].factionCode
     // update identifier
     rooms[roomUuid].units[unitIndex].identifier = newIdentifier
-    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed identifier ${oldIdentifier === '' ? '' : `from ${oldIdentifier}`}to ${newIdentifier}`)
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode} changed identifier ${oldIdentifier === '' ? '' : `from ${oldIdentifier}`}to ${newIdentifier}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitIdentifier`)
   }
@@ -515,8 +516,8 @@ const updateUnitMen = (roomUuid, factionCode, unitCode, identifier, men) => {
     const unitShopItem = unitShop.find(u => u.code === unitCode)
     units[unitIndex].maxHd = parseInt(men * unitShopItem.hdPerMen)
     units[unitIndex].hd = parseInt(men * unitShopItem.hdPerMen)
-    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed men value from ${previousMen} to ${men}`)
-    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed maxHd value from ${previousMaxHd} to ${men * unitShopItem.hdPerMen}`)
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed men value from ${previousMen} to ${men}`)
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed maxHd value from ${previousMaxHd} to ${men * unitShopItem.hdPerMen}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitMen`)
   }
@@ -545,7 +546,7 @@ const updateUnitInitiative = (roomUuid, factionCode, unitCode, identifier, initi
     const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
     units[unitIndex].initiative = parseInt(initiative)
     units[unitIndex].initiativeRaw = null
-    createLog(roomUuid, `Unit ${unitCode}-${identifier} in faction ${factionCode} changed initiative to ${initiative}`)
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed initiative to ${initiative}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitInitiative`)
   }
@@ -624,7 +625,7 @@ const updateUnitHd = (roomUuid, factionCode, unitCode, identifier, hd) => {
     const prevCasualties = units[unitIndex].casualties
     const casualties = calculateCasualties(parseInt(hd), parseInt(units[unitIndex].maxHd), units[unitIndex].veterancy)
     units[unitIndex].casualties = casualties
-    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed hd from ${prevHd} to ${hd}${casualties === 0 ? '' : `and casualties from ${prevCasualties} to ${casualties}`}`)
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed hd from ${prevHd} to ${hd}${casualties === 0 ? '' : `and casualties from ${prevCasualties} to ${casualties}`}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitHd`)
   }
@@ -636,7 +637,7 @@ const updateUnitFatigue = (roomUuid, factionCode, unitCode, identifier, fatigue)
     const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
     const prevFatigue = units[unitIndex].fatigue
     units[unitIndex].fatigue = parseInt(fatigue)
-    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed hd from ${prevFatigue} to ${fatigue}`)
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`}  changed hd from ${prevFatigue} to ${fatigue}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitFatigue`)
   }
@@ -647,9 +648,20 @@ const updateUnitNotes = (roomUuid, factionCode, unitCode, identifier, notes) => 
     const units = rooms[roomUuid].units
     const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
     units[unitIndex].notes = notes
-    createLog(roomUuid, `Unit ${unitCode} in faction ${factionCode} changed notes to ${notes}`)
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed notes to ${notes}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitFatigue`)
+  }
+}
+
+const updateUnitLife = (roomUuid, factionCode, unitCode, identifier, isAlive) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid].units
+    const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
+    units[unitIndex].isAlive = isAlive
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} was ${isAlive ? 'revived' : 'killed'}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateUnitLife`)
   }
 }
 
@@ -882,6 +894,7 @@ module.exports = {
   updateUnitHd,
   updateUnitFatigue,
   updateUnitNotes,
+  updateUnitLife,
   reorderUnitsByInitiative,
   removeUnit,
 

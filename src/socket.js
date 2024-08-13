@@ -47,6 +47,7 @@ const {
   updateUnitNotes,
   updateUnitTypeInitiative,
   reorderUnitsByInitiative,
+  updateUnitLife,
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -198,6 +199,15 @@ module.exports = (server) => {
     })
 
     // GAMEPLAY
+    socket.on('kill-unit', (data) => {
+      updateUnitLife(data.roomUuid, data.factionCode, data.unitCode, data.identifier, false)
+      io.to(data.roomUuid).emit('unit-killed', { units: readUnits(data.roomUuid) })
+    })
+
+    socket.on('revive-unit', (data) => {
+      updateUnitLife(data.roomUuid, data.factionCode, data.unitCode, data.identifier, true)
+      io.to(data.roomUuid).emit('unit-revived', { units: readUnits(data.roomUuid) })
+    })
 
     // BOARD
     // Use update-unit-coordinate
