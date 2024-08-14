@@ -242,6 +242,42 @@ const updateBoardUnit = (uuid, unitCode, startingCell, droppingCell) => {
   }
 }
 
+const updateBoardMarker = (roomUuid, userUuid, coordinates) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const board = rooms[roomUuid].board
+    const users = rooms[roomUuid].users
+
+    const userIndex = users.findIndex(u => u.userUuid === userUuid)
+    if (userIndex === -1) return
+    if (board.hasOwnProperty(coordinates)) {
+      if (board[coordinates].markerColor === users[userIndex].userColor) {
+        // Case 3: Cell has marker of same user
+        board[coordinates] = {
+          ...board[coordinates],
+          markerColor: ''
+        }
+        createLog(roomUuid, `Marker removed on cell ${coordinates} by user ${users[userIndex].username}`)
+      } else {
+        // Case 2: Cell has marker of another user
+        board[coordinates] = {
+          ...board[coordinates],
+          markerColor: users[userIndex].userColor
+        }
+        createLog(roomUuid, `Marker overwrote on cell ${coordinates} by user ${users[userIndex].username}`)
+      }
+    } else {
+      // Case 1: Cell is empty
+      board[coordinates] = {
+        ...board[coordinates],
+        markerColor: users[userIndex].userColor
+      }
+      createLog(roomUuid, `Marker placed on cell ${coordinates} by user ${users[userIndex].username}`)
+    }
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateBoardMarker`)
+  }
+}
+
 // FACTION CRUD
 // const createFaction = (roomUuid, factionData) => {
 //   // factionData: name, color, code, iconName
@@ -908,6 +944,7 @@ module.exports = {
   updateBoardSize,
   updateBoardTerrain,
   updateBoardUnit,
+  updateBoardMarker,
 
   createUser,
   readUsers,
