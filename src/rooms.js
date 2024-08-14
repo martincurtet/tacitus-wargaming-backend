@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid')
 const { unitShop, compareUnits, calculateCasualties } = require('./units')
 const { factionShop } = require('./factions')
-const { calculateCellRange, terrainColorMap, findClosestFreeTile } = require('./functions')
+const { calculateCellRange, terrainColorMap, findClosestFreeTile, assignUserColor } = require('./functions')
 const { veterancyMap } = require('./veterancy')
 
 const DEFAULT_MEN_VALUE = 20
@@ -75,6 +75,7 @@ const createRoom = (username, socketId) => {
     users: [{
       userUuid: userUuid,
       username: username,
+      userColor: assignUserColor([]),
       currentSocketId: socketId,
       faction: '',
       stratAbility: 0
@@ -734,7 +735,15 @@ const removeUnit = (roomUuid, factionCode, unitCode, identifier) => {
 const createUser = (roomUuid, socketId, username) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     let userUuid = uuidv4()
-    rooms[roomUuid].users.push({ userUuid: userUuid, username: username, currentSocketId: socketId, faction: '', stratAbility: 0 })
+    const users = rooms[roomUuid].users
+    users.push({
+      userUuid: userUuid,
+      username: username,
+      userColor: assignUserColor(users),
+      currentSocketId: socketId,
+      faction: '',
+      stratAbility: 0
+    })
     createLog(roomUuid, `User ${userUuid} (${username}) joined`)
     return userUuid
   } else {

@@ -121,9 +121,50 @@ const findClosestFreeTile = (board, coordinates, rowNumber, columnNumber) => {
   return null // No free tile found
 }
 
+const colorGroups = [
+  ['Red', 'DarkRed', 'LightCoral', 'FireBrick', 'Crimson', 'IndianRed', 'LightSalmon', 'Salmon', 'DarkSalmon', 'Red'],
+  ['Blue', 'RoyalBlue', 'DodgerBlue', 'DeepSkyBlue', 'SkyBlue', 'SteelBlue', 'LightSteelBlue', 'LightSkyBlue', 'PowderBlue', 'AliceBlue'],
+  ['Green', 'DarkGreen', 'ForestGreen', 'SeaGreen', 'MediumSeaGreen', 'LightSeaGreen', 'PaleGreen', 'SpringGreen', 'LimeGreen', 'Lime'],
+  ['Yellow', 'Gold', 'Khaki', 'LightGoldenRodYellow', 'LemonChiffon', 'LightYellow', 'PapayaWhip', 'Moccasin', 'PeachPuff', 'PaleGoldenRod'],
+  ['Orange', 'DarkOrange', 'Coral', 'Tomato', 'Orangered', 'Salmon', 'LightCoral', 'SandyBrown', 'Peru', 'Chocolate'],
+  ['Purple', 'DarkViolet', 'MediumPurple', 'BlueViolet', 'DarkOrchid', 'Orchid', 'MediumOrchid', 'Plum', 'Violet', 'Thistle'],
+  ['Cyan', 'LightCyan', 'Aqua', 'Turquoise', 'MediumTurquoise', 'DarkTurquoise', 'CadetBlue', 'DarkSlateGray', 'LightSeaGreen', 'DarkCyan'],
+  ['Magenta', 'Fuchsia', 'Orchid', 'MediumOrchid', 'DarkOrchid', 'BlueViolet', 'Purple', 'DarkViolet', 'SlateBlue', 'MediumSlateBlue'],
+  ['Brown', 'SaddleBrown', 'Sienna', 'Peru', 'RosyBrown', 'Moccasin', 'PeachPuff', 'Tan', 'GoldenRod', 'Wheat'],
+  ['Gray', 'DarkGray', 'Silver', 'LightGray', 'Gainsboro', 'WhiteSmoke', 'White', 'Black', 'DimGray', 'Charcoal']
+];
+
+// Function to get a random color from the next group
+const getRandomColorFromGroup = (usedColors, group) => {
+  let color;
+  let attempts = 0;
+
+  do {
+      color = group[Math.floor(Math.random() * group.length)];
+      attempts++;
+  } while (usedColors.includes(color) && attempts < group.length);
+
+  return color;
+};
+
+// Main function to assign a user color
+const assignUserColor = (users) => {
+  const usedColors = users.map(user => user.userColor);
+  const groupCount = colorGroups.length;
+
+  // Determine the next group index based on the number of users
+  const currentGroupIndex = users.length % groupCount;
+
+  const group = colorGroups[currentGroupIndex];
+  const color = getRandomColorFromGroup(usedColors, group);
+
+  return color;
+};
+
 module.exports = {
   integerToLetter,
   calculateCellRange,
   terrainColorMap,
-  findClosestFreeTile
+  findClosestFreeTile,
+  assignUserColor
 }
