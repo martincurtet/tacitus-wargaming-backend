@@ -460,6 +460,7 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
       coordinates: '',
       deathCoordinates: '',
       isAlive: true,
+      fire: false
     }
     // check if same unit type exists in faction
     const units = rooms[roomUuid].units
@@ -619,12 +620,14 @@ const reorderUnitsByInitiative = (roomUuid) => {
 const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coordinates) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const units = rooms[roomUuid].units
+    const board = rooms[roomUuid].board
+    const factions = rooms[roomUuid].factions
+
     const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
     const prevCoordinates = units[unitIndex].coordinates
     units[unitIndex].coordinates = coordinates
+
     // add unit in board cell
-    const board = rooms[roomUuid].board
-    const factions = rooms[roomUuid].factions
     board[coordinates] = {
       ...board[coordinates],
       unitFullCode: `${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`}`,
@@ -632,10 +635,7 @@ const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coor
       factionIcon: factions.find(f => f.code === factionCode).icon,
       veterancyIcon: veterancyMap[parseInt(units[unitIndex].veterancy)].iconName
     }
-    // board[coordinates].unitFullCode = `${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`}`
-    // board[coordinates].unitIcon = units[unitIndex].iconName
-    // board[coordinates].factionIcon = factions.find(f => f.code === factionCode).icon
-    // board[coordinates].veterancyIcon = veterancyMap[parseInt(units[unitIndex].veterancy)]
+
     // remove unit from previous board cell
     if (prevCoordinates !== '') {
       board[prevCoordinates] = {
@@ -645,10 +645,8 @@ const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coor
         factionIcon: '',
         veterancyIcon: ''
       }
-      // board[prevCoordinates].unitFullCode = ''
-      // board[prevCoordinates].unitIcon = ''
-      // board[prevCoordinates].factionIcon = ''
-      // board[prevCoordinates].veterancyIcon = ''
+
+      units[unitIndex].fire = board[coordinates].fire
     }
     createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed coordinates from ${prevCoordinates} to ${coordinates}`)
   } else {
