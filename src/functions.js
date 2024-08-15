@@ -55,10 +55,10 @@ const terrainColorMap = {
   'jungle': '#274e13',
   'undergrowth': '#38761d',
   'marsh': '#134f5c',
-  'high-ground': '#ffffff', // TBD
+  'high-ground': '#071c30',
   'shallow-water': '#c9daf8',
   'deep-water': '#3c78d8',
-  'fire': 'ffffff', // TBD
+  'fire': '#ff9a00',
   'road': '#999999'
 }
 

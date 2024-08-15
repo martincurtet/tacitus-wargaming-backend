@@ -209,7 +209,9 @@ const updateBoardTerrain = (roomUuid, startCell, endCell, terrainType) => {
       board[cell] = {
         ...board[cell],
         terrainType: terrainType,
-        terrainColor: terrainColorMap[terrainType]
+        terrainColor: terrainColorMap[terrainType],
+        fire: terrainType === 'fire',
+        impassable: terrainType === 'high-ground'
       }
     })
     createLog(roomUuid, `${terrainType} terrain type applied between cells ${startCell} and ${endCell}`)
