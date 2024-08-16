@@ -122,6 +122,7 @@ const nextStep = (roomUuid) => {
     let currentStep = rooms[roomUuid].step
     if (currentStep <= 4) {
       rooms[roomUuid].step = currentStep + 1
+      createLog(roomUuid, `Step ${currentStep} complete, moving to step ${currentStep+1}`)
     }
   } else {
     console.error(`# Couldn't find room ${roomUuid} - nextStep`)
@@ -134,6 +135,7 @@ const prevStep = (roomUuid) => {
     let currentStep = rooms[roomUuid].step
     if (currentStep >= 2) {
       rooms[roomUuid].step = currentStep - 1
+      createLog(roomUuid, `Moving back to step ${currentStep-1}`)
     }
   } else {
     console.error(`# Couldn't find room ${roomUuid} - prevStep`)

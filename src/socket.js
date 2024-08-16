@@ -213,7 +213,6 @@ module.exports = (server) => {
     })
 
     // BOARD
-    // Use update-unit-coordinate
     socket.on('toggle-marker', (data) => {
       updateBoardMarker(data.roomUuid, data.userUuid, data.coordinates)
       io.to(data.roomUuid).emit('marker-toggled', { board: readBoard(data.roomUuid), log: readLog(data.roomUuid) })
