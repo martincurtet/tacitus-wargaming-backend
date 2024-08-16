@@ -656,6 +656,7 @@ const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coor
       ...board[coordinates],
       unitFullCode: `${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`}`,
       unitIcon: units[unitIndex].iconName,
+      unitIdentifier: units[unitIndex].identifier,
       factionIcon: factions.find(f => f.code === factionCode).icon,
       veterancyIcon: veterancyMap[parseInt(units[unitIndex].veterancy)].iconName
     }
@@ -666,6 +667,7 @@ const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coor
         ...board[prevCoordinates],
         unitFullCode: '',
         unitIcon: '',
+        unitIdentifier: '',
         factionIcon: '',
         veterancyIcon: ''
       }
