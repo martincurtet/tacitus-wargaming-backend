@@ -291,8 +291,11 @@ const updateBoardFire = (roomUuid, userUuid, coordinates) => {
     const users = rooms[roomUuid].users
     const userIndex = users.findIndex(u => u.userUuid === userUuid)
     const board = rooms[roomUuid].board
-    const currentFire = board[coordinates].fire
-    board[coordinates].fire = !currentFire
+    const currentFire = board[coordinates]?.fire
+    board[coordinates] = {
+      ...board[coordinates],
+      fire:!currentFire
+    }
     createLog(roomUuid, `Fire toggled${currentFire ? ' off' : ' on'} on cell ${coordinates} by user ${users[userIndex].username}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateBoardFire`)
