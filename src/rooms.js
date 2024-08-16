@@ -206,12 +206,18 @@ const updateBoardTerrain = (roomUuid, startCell, endCell, terrainType) => {
     const zone = calculateCellRange(startCell, endCell)
     let board = rooms[roomUuid].board
     zone.forEach(cell => {
-      board[cell] = {
-        ...board[cell],
-        terrainType: terrainType,
-        terrainColor: terrainColorMap[terrainType],
-        fire: terrainType === 'fire',
-        impassable: terrainType === 'high-ground'
+      if (terrainType === 'fire') {
+        board[cell] = {
+          ...board[cell],
+          fire: true,
+        }
+      } else {
+        board[cell] = {
+          ...board[cell],
+          terrainType: terrainType,
+          terrainColor: terrainColorMap[terrainType],
+          impassable: terrainType === 'high-ground'
+        }
       }
     })
     createLog(roomUuid, `${terrainType} terrain type applied between cells ${startCell} and ${endCell}`)
@@ -277,6 +283,19 @@ const updateBoardMarker = (roomUuid, userUuid, coordinates) => {
     }
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateBoardMarker`)
+  }
+}
+
+const updateBoardFire = (roomUuid, userUuid, coordinates) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const users = rooms[roomUuid].users
+    const userIndex = users.findIndex(u => u.userUuid === userUuid)
+    const board = rooms[roomUuid].board
+    const currentFire = board[coordinates].fire
+    board[coordinates].fire = !currentFire
+    createLog(roomUuid, `Fire toggled${currentFire ? ' off' : ' on'} on cell ${coordinates} by user ${users[userIndex].username}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - updateBoardFire`)
   }
 }
 
@@ -945,6 +964,7 @@ module.exports = {
   updateBoardTerrain,
   updateBoardUnit,
   updateBoardMarker,
+  updateBoardFire,
 
   createUser,
   readUsers,
