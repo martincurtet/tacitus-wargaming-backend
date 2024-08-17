@@ -38,6 +38,7 @@ let exampleRoom = {
   //   name: 'Karinia',
   //   stratAbility: 0
   // }],
+  initiativeHistory: [],
   log: [],
   messages: [], // { timestamp: '', username: '', message: '' }
   unitShop: unitShop,
@@ -68,6 +69,7 @@ const createRoom = (username, socketId) => {
     // faction strategic ability modifier FSAM
     // not present during creation, get set up during step 1
     factions: [],
+    initiativeHistory: [],
     log: [],
     messages: [],
     unitShop: unitShop,
@@ -620,17 +622,49 @@ const updateUnitInitiative = (roomUuid, factionCode, unitCode, identifier, initi
 const updateUnitTypeInitiative = (roomUuid, factionCode, unitCode, initiative) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const units = rooms[roomUuid].units
+    let unitTypeInitiativeRaw
     units.forEach(unit => {
       if (unit.factionCode === factionCode && unit.unitCode === unitCode) {
         unit.initiative = parseInt(initiative)
+        unitTypeInitiativeRaw = unit.initiativeRaw
         unit.initiativeRaw = null
       }
+    })
+    rooms[roomUuid].initiativeHistory.push({
+      unitType: `${factionCode}-${unitCode}`,
+      initiativeRaw: unitTypeInitiativeRaw,
+      initiative: parseInt(initiative)
     })
     createLog(roomUuid, `Unit type ${factionCode}-${unitCode} changed initiative to ${initiative}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitTypeInitiative`)
   }
 }
+
+const revertInitiativeChanges = (roomUuid, steps = 1) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid].units
+    const initiativeHistory = rooms[roomUuid].initiativeHistory
+
+    if (initiativeHistory.length === 0) return
+
+    const revertSteps = steps === 'all' ? initiativeHistory.length : Math.min(steps, initiativeHistory.length);
+
+    for (let i = 0; i < revertSteps; i++) {
+      const lastEntry = initiativeHistory.pop()
+      units.forEach(unit => {
+        if (`${unit.factionCode}-${unit.unitCode}` === lastEntry.unitType) {
+          unit.initiative = null
+          unit.initiativeRaw = lastEntry.initiativeRaw
+        }
+      })
+      createLog(roomUuid, `Reverted initiative change for ${lastEntry.unitType} from ${lastEntry.initiative} to previous value ${lastEntry.initiativeRaw}`);
+    }
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - revertInitiativeChanges`)
+  }
+}
+
 
 const reorderUnitsByInitiative = (roomUuid) => {
   if (rooms.hasOwnProperty(roomUuid)) {
@@ -1004,6 +1038,7 @@ module.exports = {
   updateUnitsRawInitiative,
   updateUnitInitiative,
   updateUnitTypeInitiative,
+  revertInitiativeChanges,
   updateUnitCoordinates,
   updateUnitHd,
   updateUnitFatigue,

@@ -51,6 +51,7 @@ const {
   reviveUnit,
   updateBoardMarker,
   updateBoardFire,
+  revertInitiativeChanges,
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -178,6 +179,11 @@ module.exports = (server) => {
     socket.on('change-initiative', (data) => {
       updateUnitTypeInitiative(data.roomUuid, data.factionCode, data.unitCode, data.initiative)
       io.to(data.roomUuid).emit('initiative-changed', { units: readUnits(data.roomUuid) })
+    })
+
+    socket.on('revert-initiative', (data) => {
+      revertInitiativeChanges(data.roomUuid, data.steps)
+      io.to(data.roomUuid).emit('initiative-reverted', { units: readUnits(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
     // SETUP STEP 4 - BOARD
