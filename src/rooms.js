@@ -486,7 +486,8 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
       coordinates: '',
       deathCoordinates: '',
       isAlive: true,
-      fire: false
+      fire: false,
+      fontColor: unitShopItem.fontColor // unitShop
     }
     // check if same unit type exists in faction
     const units = rooms[roomUuid].units
