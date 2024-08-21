@@ -52,6 +52,7 @@ const {
   updateBoardMarker,
   updateBoardFire,
   revertInitiativeChanges,
+  removeMarkerUser,
 } = require('./rooms')
 
 module.exports = (server) => {
@@ -222,6 +223,11 @@ module.exports = (server) => {
     socket.on('toggle-marker', (data) => {
       updateBoardMarker(data.roomUuid, data.userUuid, data.coordinates)
       io.to(data.roomUuid).emit('marker-toggled', { board: readBoard(data.roomUuid), log: readLog(data.roomUuid) })
+    })
+
+    socket.on('remove-markers', (data) => {
+      removeMarkerUser(data.roomUuid, data.userUuid)
+      io.to(data.roomUuid).emit('markers-removed', { board: readBoard(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
     socket.on('toggle-fire', (data) => {

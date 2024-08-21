@@ -266,14 +266,16 @@ const updateBoardMarker = (roomUuid, userUuid, coordinates) => {
         // Case 3: Cell has marker of same user
         board[coordinates] = {
           ...board[coordinates],
-          markerColor: ''
+          markerColor: '',
+          markerUserUuid: ''
         }
         createLog(roomUuid, `Marker removed on cell ${coordinates} by user ${users[userIndex].username}`)
       } else {
         // Case 2: Cell has marker of another user
         board[coordinates] = {
           ...board[coordinates],
-          markerColor: users[userIndex].userColor
+          markerColor: users[userIndex].userColor,
+          markerUserUuid: userUuid
         }
         createLog(roomUuid, `Marker overwrote on cell ${coordinates} by user ${users[userIndex].username}`)
       }
@@ -281,7 +283,8 @@ const updateBoardMarker = (roomUuid, userUuid, coordinates) => {
       // Case 1: Cell is empty
       board[coordinates] = {
         ...board[coordinates],
-        markerColor: users[userIndex].userColor
+        markerColor: users[userIndex].userColor,
+        markerUserUuid: userUuid
       }
       createLog(roomUuid, `Marker placed on cell ${coordinates} by user ${users[userIndex].username}`)
     }
@@ -303,6 +306,27 @@ const updateBoardFire = (roomUuid, userUuid, coordinates) => {
     createLog(roomUuid, `Fire toggled${currentFire ? ' off' : ' on'} on cell ${coordinates} by user ${users[userIndex].username}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateBoardFire`)
+  }
+}
+
+const removeMarkerUser = (roomUuid, userUuid) => {
+  if (rooms.hasOwnProperty(roomUuid)) {
+    const board = rooms[roomUuid].board
+    const users = rooms[roomUuid].users
+    const userIndex = users.findIndex(u => u.userUuid === userUuid)
+    if (userIndex === -1) return
+
+    for (const coordinates in board) {
+      if (board.hasOwnProperty(coordinates)) {
+        if (board[coordinates].markerUserUuid === userUuid) {
+          board[coordinates].markerColor = ''
+          board[coordinates].markerUserUuid = ''
+        }
+      }
+    }
+    createLog(roomUuid, `All markers removed for user ${users[userIndex].username}`)
+  } else {
+    console.error(`# Couldn't find room ${roomUuid} - removeMarkerUser`)
   }
 }
 
@@ -1007,6 +1031,7 @@ module.exports = {
   updateBoardUnit,
   updateBoardMarker,
   updateBoardFire,
+  removeMarkerUser,
 
   createUser,
   readUsers,
