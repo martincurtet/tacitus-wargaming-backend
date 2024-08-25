@@ -717,7 +717,9 @@ const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coor
       unitIcon: units[unitIndex].iconName,
       unitIdentifier: units[unitIndex].identifier,
       factionIcon: factions.find(f => f.code === factionCode).icon,
-      veterancyIcon: veterancyMap[parseInt(units[unitIndex].veterancy)].iconName
+      veterancyIcon: veterancyMap[parseInt(units[unitIndex].veterancy)].iconName,
+      identifier: units[unitIndex].identifier,
+      identifierColor: units[unitIndex].fontColor
     }
 
     // remove unit from previous board cell
@@ -728,7 +730,9 @@ const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coor
         unitIcon: '',
         unitIdentifier: '',
         factionIcon: '',
-        veterancyIcon: ''
+        veterancyIcon: '',
+        identifier: '',
+        identifierColor: ''
       }
 
       units[unitIndex].fire = board[coordinates].fire
