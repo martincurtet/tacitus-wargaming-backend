@@ -507,6 +507,7 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
       notes: '', // empty
       initiativeRaw: null,
       initiative: null,
+      initiativeOrder: null,
       coordinates: '',
       deathCoordinates: '',
       isAlive: true,
@@ -644,23 +645,61 @@ const updateUnitInitiative = (roomUuid, factionCode, unitCode, identifier, initi
   }
 }
 
-const updateUnitTypeInitiative = (roomUuid, factionCode, unitCode, initiative) => {
+const updateUnitTypeInitiative = (roomUuid, factionCode, unitCode, initiative, initiativeOrder) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const units = rooms[roomUuid].units
+
+    // update other units
+    units.forEach(unit => {
+      if (
+        unit.initiative === parseInt(initiative) &&
+        `${unit.factionCode}-${unit.unitCode}` !== `${factionCode}-${unitCode}` &&
+        unit.initiativeOrder >= parseInt(initiativeOrder)
+      ) {
+        console.log(`${unit.factionCode}-${unit.unitCode} increase initiativeOrder from ${unit.initiativeOrder} to ${unit.initiativeOrder+1}`)
+        unit.initiativeOrder = unit.initiativeOrder + 1
+      }
+    })
+
+    // update this unitType units
     let unitTypeInitiativeRaw
     units.forEach(unit => {
       if (unit.factionCode === factionCode && unit.unitCode === unitCode) {
         unit.initiative = parseInt(initiative)
         unitTypeInitiativeRaw = unit.initiativeRaw
-        unit.initiativeRaw = null
+        unit.initiativeRaw = null,
+        unit.initiativeOrder = parseInt(initiativeOrder)
       }
     })
+
+    // reorder
+    units.sort((a, b) => {
+      if (a.initiative !== b.initiative) {
+        return a.initiative - b.initiative
+      }
+
+      if (a.initiativeOrder !== b.initiativeOrder) {
+        return a.initiativeOrder - b.initiativeOrder
+      }
+
+      if (a.identifier < b.identifier) {
+        return -1
+      } else if (a.identifier > b.identifier) {
+        return 1
+      }
+
+      return 0
+    })
+
+    // update history
     rooms[roomUuid].initiativeHistory.push({
       unitType: `${factionCode}-${unitCode}`,
       initiativeRaw: unitTypeInitiativeRaw,
-      initiative: parseInt(initiative)
+      initiative: parseInt(initiative),
+      initiativeOrder: parseInt(initiativeOrder)
     })
-    createLog(roomUuid, `Unit type ${factionCode}-${unitCode} changed initiative to ${initiative}`)
+
+    createLog(roomUuid, `Unit type ${factionCode}-${unitCode} changed initiative to ${initiative} (order: ${initiativeOrder})`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitTypeInitiative`)
   }
@@ -677,12 +716,26 @@ const revertInitiativeChanges = (roomUuid, steps = 1) => {
 
     for (let i = 0; i < revertSteps; i++) {
       const lastEntry = initiativeHistory.pop()
+
+      // Restore initiative and initiativeOrder for the target unit type
       units.forEach(unit => {
         if (`${unit.factionCode}-${unit.unitCode}` === lastEntry.unitType) {
           unit.initiative = null
           unit.initiativeRaw = lastEntry.initiativeRaw
+          unit.initiativeOrder = null // Reset the initiativeOrder for this unit type
         }
       })
+  
+      // Adjust initiativeOrder for other units with the same initiative value
+      units.forEach(unit => {
+        if (
+          unit.initiative === lastEntry.initiative &&
+          unit.initiativeOrder > lastEntry.initiativeOrder
+        ) {
+          unit.initiativeOrder -= 1 // Decrement the initiativeOrder to fill the gap
+        }
+      })
+
       createLog(roomUuid, `Reverted initiative change for ${lastEntry.unitType} from ${lastEntry.initiative} to previous value ${lastEntry.initiativeRaw}`);
     }
   } else {
