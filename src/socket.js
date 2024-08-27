@@ -189,7 +189,6 @@ module.exports = (server) => {
 
     // SETUP STEP 4 - BOARD
     socket.on('update-board-size', (data) => {
-      console.log(`receiving board size ${data.boardSize['rowNumber']} ${data.boardSize['columnNumber']}`)
       updateBoardSize(data.roomUuid, data.boardSize)
       io.to(data.roomUuid).emit('board-size-updated', { boardSize: readBoardSize(data.roomUuid), log: readLog(data.roomUuid) })
     })

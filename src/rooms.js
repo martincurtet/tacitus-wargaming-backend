@@ -215,12 +215,16 @@ const updateBoardTerrain = (roomUuid, startCell, endCell, terrainType) => {
           ...board[cell],
           fire: true,
         }
+      } else if (terrainType === 'high-ground') {
+        board[cell] = {
+          ...board[cell],
+          impassable: terrainType === 'high-ground'
+        }
       } else {
         board[cell] = {
           ...board[cell],
           terrainType: terrainType,
-          terrainColor: terrainColorMap[terrainType],
-          impassable: terrainType === 'high-ground'
+          terrainColor: terrainColorMap[terrainType]
         }
       }
     })
