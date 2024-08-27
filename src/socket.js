@@ -133,7 +133,7 @@ module.exports = (server) => {
 
     socket.on('assign-faction', (data) => {
       let currentUserFaction = readUserFaction(data.roomUuid, data.userUuid)
-      if (currentUserFaction !== data.factionCode) {
+      if (currentUserFaction !== data.factionCode || data.factionCode === '') {
         updateUserFaction(data.roomUuid, data.userUuid, data.factionCode)
         updateFactionsStratAbility(data.roomUuid)
         io.to(data.roomUuid).emit('faction-assigned', { users: readUsers(data.roomUuid), factions: readFactions(data.roomUuid), log: readLog(data.roomUuid)})
