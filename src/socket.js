@@ -135,6 +135,9 @@ module.exports = (server) => {
       let currentUserFaction = readUserFaction(data.roomUuid, data.userUuid)
       if (currentUserFaction !== data.factionCode || data.factionCode === '') {
         updateUserFaction(data.roomUuid, data.userUuid, data.factionCode)
+        if (data.stratAbility) {
+          updateUserStratAbility(data.roomUuid, data.userUuid, data.stratAbility)
+        }
         updateFactionsStratAbility(data.roomUuid)
         io.to(data.roomUuid).emit('faction-assigned', { users: readUsers(data.roomUuid), factions: readFactions(data.roomUuid), log: readLog(data.roomUuid)})
       }
