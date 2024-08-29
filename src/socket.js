@@ -221,6 +221,10 @@ module.exports = (server) => {
       io.to(data.roomUuid).emit('unit-revived', { board: readBoard(data.roomUuid), units: readUnits(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
+    socket.on('download-file', (data) => {
+      io.to(data.roomUuid).emit('file-downloaded', { room: readRoom(data.roomUuid) })
+    })
+
     // BOARD
     socket.on('toggle-marker', (data) => {
       updateBoardMarker(data.roomUuid, data.userUuid, data.coordinates)
