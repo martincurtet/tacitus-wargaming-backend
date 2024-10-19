@@ -4,7 +4,7 @@ const socket = require('./src/socket')
 const { rooms } = require('./src/rooms')
 require('console-stamp')(console, 'yyyy/mm/dd HH:MM:ss')
 
-const URL = 'https://luminous-crumble-c87247.netlify.app/'
+const URL = 'https://luminous-crumble-c87247.netlify.app'
 const PORT = 8080
 
 const app = express()

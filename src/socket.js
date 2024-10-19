@@ -58,7 +58,7 @@ const {
 module.exports = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: 'https://zippy-squirrel-fd05c1.netlify.app/'
+      origin: 'https://zippy-squirrel-fd05c1.netlify.app'
     }
   })
 
