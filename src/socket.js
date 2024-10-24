@@ -58,7 +58,7 @@ const {
 module.exports = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: 'http://localhost:3000'
+      origin: process.env.NODE_ENV === 'PORT' ? process.env.PROD_CORS : process.env.DEV_CORS
     }
   })
 
