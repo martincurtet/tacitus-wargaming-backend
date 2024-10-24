@@ -222,7 +222,7 @@ module.exports = (server) => {
     })
 
     socket.on('download-file', (data) => {
-      io.to(data.roomUuid).emit('file-downloaded', { room: readRoom(data.roomUuid) })
+      socket.emit('file-downloaded', { room: readRoom(data.roomUuid) })
     })
 
     // BOARD
