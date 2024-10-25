@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Page</title>
+</head>
+<body>
+  <h1>Rooms List</h1>
+  <button>Import</button>
+  <table>
+    <thead>
+      <td>Room UUID</td>
+      <td>Host</td>
+      <td>Room Active</td>
+      <td>Connected Users</td>
+      <td>Created On</td>
+      <td>Last Activity</td>
+      <td>Actions</td>
+    </thead>
+
+    <% Object.entries(rooms).forEach(([key, room]) => { %>
+      <tr>
+        <td><%= room.roomUuid %></td>
+        <td>
+          <% const host = room.users.find(user => user.userUuid === room.hostUuid) %>
+          <%= host ? host.username : 'Host Not Found' %>
+        </td>
+        <% const connectedUsers = room.users.filter(user => user.currentSocketId).length %>
+        <td>
+          <% const isActive = connectedUsers > 0; %>
+          <span style='color: <%= isActive ? 'green' : 'red' %>;'>
+            ●
+          </span>
+        </td>
+        <td>
+          <%= connectedUsers %>
+        </td>
+        <td>
+          <% const createdOn = room.log?.[0]?.timestamp || 'Unknown' %>
+          <%= new Date(createdOn).toLocaleString() %>
+        </td>
+        <td>
+          <% const lastActivity = room.log?.[room.log.length - 1]?.timestamp || 'Unknown' %>
+          <%= new Date(lastActivity).toLocaleString() %>
+        </td>
+        <td>
+          <button>see json</button>
+          <button>Export</button>
+          <button>Delete</button>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+</body>
+</html>
