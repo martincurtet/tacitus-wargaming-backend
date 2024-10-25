@@ -169,15 +169,6 @@ const readBoardSize = (roomUuid) => {
   }
 }
 
-const updateBoard = (uuid, board) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    rooms[uuid].board = board
-    createLog(uuid, `Board updated`)
-  } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoard`)
-  }
-}
-
 const updateBoardSize = (roomUuid, boardSize) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     let prevRowNumber = rooms[roomUuid].boardSize['rowNumber']
@@ -187,21 +178,6 @@ const updateBoardSize = (roomUuid, boardSize) => {
     createLog(roomUuid, `Board size updated from r:${prevRowNumber}, c:${prevColumnNumber} to r:${boardSize['rowNumber']}, c:${boardSize['columnNumber']}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateBoardSize`)
-  }
-}
-
-const updateBoardTerrainZone = (uuid, terrain, zone) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    // zone is list of cells, need to paint the terrain
-    // get board, add rules
-    let tempBoard = rooms[uuid].board
-    zone.forEach(cell => {
-      tempBoard[cell] = { ...tempBoard[cell], terrain: terrain }
-    })
-    rooms[uuid].board = tempBoard
-    createLog(uuid, `Board terrain updated with ${terrain} terrain on zone: ${zone}`)
-  } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoardTerrain`)
   }
 }
 
@@ -231,30 +207,6 @@ const updateBoardTerrain = (roomUuid, startCell, endCell, terrainType) => {
     createLog(roomUuid, `${terrainType} terrain type applied between cells ${startCell} and ${endCell}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateBoardTerrain`)
-  }
-}
-
-const updateBoardUnit = (uuid, unitCode, startingCell, droppingCell) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    let tempBoard = rooms[uuid].board
-    // case 1 from drop-zone to cell
-    if (startingCell === 'drop-zone') {
-      tempBoard[droppingCell] = { ...tempBoard[droppingCell], unit: unitCode }
-      tempBoard['drop-zone'].splice(tempBoard['drop-zone'].indexOf(unitCode), 1)
-    }
-    // case 2 from cell to drop-zone
-    else if (droppingCell === 'drop-zone') {
-      tempBoard['drop-zone'].push(unitCode)
-      delete tempBoard[startingCell].unit
-    }
-    // case 3 from cell to cell
-    else {
-      tempBoard[droppingCell] = { ...tempBoard[droppingCell], unit: unitCode }
-      delete tempBoard[startingCell].unit
-    }
-    createLog(uuid, `Unit ${unitCode} moved from ${startingCell} to ${droppingCell}`)
-  } else {
-    console.error(`# Couldn't find room ${uuid} - updateBoardUnit`)
   }
 }
 
@@ -335,25 +287,6 @@ const removeMarkerUser = (roomUuid, userUuid) => {
 }
 
 // FACTION CRUD
-// const createFaction = (roomUuid, factionData) => {
-//   // factionData: name, color, code, iconName
-//   if (rooms.hasOwnProperty(roomUuid)) {
-//     if (rooms[roomUuid].factions.some(f => f.code === factionData.code)) {
-//       console.error(`# Faction already exists`)
-//     } else {
-//       rooms[roomUuid].push({
-//         code: factionData.code,
-//         color: factionData.color,
-//         icon: factionData.iconName,
-//         name: factionData.name,
-//         stratAbility: ''
-//       })
-//     }
-//   } else {
-//     console.error(`# Couldn't find room ${roomUuid} - createFaction`)
-//   }
-// }
-
 const addFaction = (roomUuid, factionCode) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     if (rooms[roomUuid].factions.some(f => f.code === factionCode)) {
@@ -376,37 +309,6 @@ const readFactions = (roomUuid) => {
     return rooms[roomUuid].factions
   } else {
     console.error(`# Couldn't find room ${roomUuid} - readFactions`)
-  }
-}
-
-const readFactionStratAbility = (roomUuid, factionCode) => {
-  if (rooms.hasOwnProperty(roomUuid)) {
-    const factions = rooms[roomUuid].factions
-    return factions.find(f => f.code === factionCode)?.stratAbility
-  } else {
-    console.error(`# Couldn't find room ${roomUuid} - readFactionStratAbility`)
-  }
-}
-
-const updateFactions = (uuid, factions) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    rooms[uuid].factions = factions
-    createLog(uuid, `Factions updated`)
-  } else {
-    console.error(`# Couldn't find room ${uuid} - updateFactions`)
-  }
-}
-
-const updateFactionStratAbility = (roomUuid, factionCode, stratAbility) => {
-  if (rooms.hasOwnProperty(roomUuid)) {
-    // find faction
-    const factions = rooms[roomUuid].factions
-    let factionIndex = factions.findIndex(f => f.code === factionCode)
-    // update strat ability
-    rooms[roomUuid].factions[factionIndex].stratAbility = parseInt(stratAbility)
-    createLog(roomUuid, `Faction ${factionCode} changed stratAbility to ${stratAbility}`)
-  } else {
-    console.error(`# Couldn't find room ${roomUuid} - updateFactionStratAbility`)
   }
 }
 
@@ -482,15 +384,6 @@ const readMessages = (roomUuid) => {
   }
 }
 
-const updateMessages = (uuid, messages) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    rooms[uuid].messages = messages
-    createLog(uuid, `Messages updated`)
-  } else {
-    console.error(`# Couldn't find room ${uuid} - updateMessages`)
-  }
-}
-
 // UNIT CRUD
 const addUnit = (roomUuid, factionCode, unitCode) => {
   if (rooms.hasOwnProperty(roomUuid)) {
@@ -555,38 +448,6 @@ const readUnits = (uuid) => {
   }
 }
 
-const updateUnits = (uuid, units) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    rooms[uuid].units = units
-    createLog(uuid, `Units updated`)
-  } else {
-    console.error(`# Couldn't find room ${uuid} - updateUnits`)
-  }
-}
-
-const updateUnit = (uuid, unitCode, unitData) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    let oldUnit = rooms[uuid].units.find(u => u.code === unitCode)
-    let newUnit = unitData
-
-    let comparison = compareUnits(oldUnit, newUnit)
-    if (comparison === null) {
-      console.error(`# Error comparing the two units`)
-    } else {
-      newUnit.casualties = calculateCasualties(newUnit.hd, newUnit.maxHd, newUnit.veterancy).toString()
-      let unitIndex = rooms[uuid].units.findIndex(u => u.code === unitCode)
-      rooms[uuid].units[unitIndex] = newUnit
-      if (oldUnit.casualties !== newUnit.casualties) {
-        createLog(uuid, `Unit ${unitCode} updated ${comparison[0]} from ${comparison[1]} to ${comparison[2]} and casualties from ${oldUnit.casualties} to ${newUnit.casualties}`)
-      } else {
-        createLog(uuid, `Unit ${unitCode} updated ${comparison[0]} from ${comparison[1]} to ${comparison[2]}`)
-      }
-    }
-  } else {
-    console.error(`# Couldn't find room ${uuid} - updateUnit`)
-  }
-}
-
 const updateUnitIdentifier = (roomUuid, unitCode, oldIdentifier, newIdentifier) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     // find unit
@@ -634,18 +495,6 @@ const updateUnitsRawInitiative = (roomUuid) => {
     createLog(roomUuid, `Units raw initiative assigned`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitsRawInitiative`)
-  }
-}
-
-const updateUnitInitiative = (roomUuid, factionCode, unitCode, identifier, initiative) => {
-  if (rooms.hasOwnProperty(roomUuid)) {
-    const units = rooms[roomUuid].units
-    const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
-    units[unitIndex].initiative = parseInt(initiative)
-    units[unitIndex].initiativeRaw = null
-    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed initiative to ${initiative}`)
-  } else {
-    console.error(`# Couldn't find room ${roomUuid} - updateUnitInitiative`)
   }
 }
 
@@ -941,15 +790,6 @@ const readUsers = (roomUuid) => {
   }
 }
 
-const readUsername = (uuid, userId) => {
-  if (rooms.hasOwnProperty(uuid)) {
-    const users = rooms[uuid].users
-    return users.find((u) => u.id === userId).username
-  } else {
-    console.error(`# Couldn't find room ${uuid} - readUsername`)
-  }
-}
-
 const readUserUuid = (roomUuid, userUuid) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const users = rooms[roomUuid].users
@@ -1011,21 +851,6 @@ const updateUserStratAbility = (roomUuid, userUuid, stratAbility) => {
   }
 }
 
-const deleteUser = (roomUuid, userUuid) => {
-  if (rooms.hasOwnProperty(roomUuid)) {
-    const userIndex = rooms[roomUuid].users.findIndex(u => u.userUuid === userUuid)
-    if (userIndex !== -1) {
-      let username = rooms[roomUuid].users[userIndex].username
-      rooms[roomUuid].users.splice(userIndex, 1)[0]
-      createLog(roomUuid, `User ${userUuid} (${username}) left`)
-    } else {
-      console.error(`# Couldn't find user ${userUuid}`)
-    }
-  } else {
-    console.error(`# Couldn't find room ${roomUuid} - deleteUser`)
-  }
-}
-
 const disconnectUser = (roomUuid, userUuid) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const userIndex = rooms[roomUuid].users.findIndex(u => u.userUuid === userUuid)
@@ -1075,66 +900,14 @@ const updateFactionsUnits = (uuid, factions, units) => {
 
 module.exports = {
   rooms,
-  createRoom,
-  readRoom,
-  readRoomHost,
-  deleteRoom,
-
-  nextStep,
-  prevStep,
-  readStep,
-
-  readBoard,
-  readBoardSize,
-  updateBoard,
-  updateBoardSize,
-  updateBoardTerrain,
-  updateBoardUnit,
-  updateBoardMarker,
-  updateBoardFire,
+  createRoom, readRoom, readRoomHost, deleteRoom,
+  nextStep, prevStep, readStep,
+  readBoard, readBoardSize, updateBoardSize, updateBoardTerrain, updateBoardMarker, updateBoardFire,
   removeMarkerUser,
-
-  createUser,
-  readUsers,
-  readUsername,
-  readUserUuid,
-  readUserFaction,
-  updateUserSocket,
-  updateUserFaction,
-  updateUserStratAbility,
-  deleteUser,
-  disconnectUser,
-
-  addFaction,
-  readFactions,
-  readFactionStratAbility,
-  updateFactions,
-  updateFactionStratAbility,
-  updateFactionsStratAbility,
-  removeFaction,
-
-  createMessage,
-  readMessages,
-  updateMessages,
-
-  addUnit,
-  readUnits,
-  updateUnits,
-  updateUnit,
-  updateUnitMen,
-  updateUnitsRawInitiative,
-  updateUnitInitiative,
-  updateUnitTypeInitiative,
-  revertInitiativeChanges,
-  updateUnitCoordinates,
-  updateUnitHd,
-  updateUnitFatigue,
-  updateUnitNotes,
-  killUnit, reviveUnit,
-  reorderUnitsByInitiative,
-  removeUnit,
-
+  createUser, readUsers,readUserUuid,readUserFaction, updateUserSocket, updateUserFaction, updateUserStratAbility, disconnectUser,
+  addFaction, readFactions, updateFactionsStratAbility, removeFaction,
+  createMessage, readMessages,
+  addUnit, readUnits, updateUnitMen, updateUnitsRawInitiative, updateUnitTypeInitiative, revertInitiativeChanges, updateUnitCoordinates, updateUnitHd, updateUnitFatigue, updateUnitNotes, killUnit, reviveUnit, reorderUnitsByInitiative, removeUnit,
   readLog,
-
   updateFactionsUnits
 }
