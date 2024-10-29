@@ -171,11 +171,13 @@ const readBoardSize = (roomUuid) => {
 
 const updateBoardSize = (roomUuid, boardSize) => {
   if (rooms.hasOwnProperty(roomUuid)) {
+    const rowNumber = Math.max(1, Math.min(100, boardSize['rowNumber']));
+    const columnNumber = Math.max(1, Math.min(100, boardSize['columnNumber']));
     let prevRowNumber = rooms[roomUuid].boardSize['rowNumber']
     let prevColumnNumber = rooms[roomUuid].boardSize['columnNumber']
-    rooms[roomUuid].boardSize['rowNumber'] = boardSize['rowNumber']
-    rooms[roomUuid].boardSize['columnNumber'] = boardSize['columnNumber']
-    createLog(roomUuid, `Board size updated from r:${prevRowNumber}, c:${prevColumnNumber} to r:${boardSize['rowNumber']}, c:${boardSize['columnNumber']}`)
+    rooms[roomUuid].boardSize['rowNumber'] = rowNumber
+    rooms[roomUuid].boardSize['columnNumber'] = columnNumber
+    createLog(roomUuid, `Board size updated from r:${prevRowNumber}, c:${prevColumnNumber} to r:${rowNumber}, c:${columnNumber}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateBoardSize`)
   }
@@ -387,6 +389,10 @@ const readMessages = (roomUuid) => {
 // UNIT CRUD
 const addUnit = (roomUuid, factionCode, unitCode) => {
   if (rooms.hasOwnProperty(roomUuid)) {
+    const units = rooms[roomUuid].units
+    // Check if faction is full (100 units)
+    if (units.filter(u => u.factionCode === factionCode).length >= 100) return
+    // get unit information
     const unitShopItem = unitShop.find(u => u.code === unitCode)
     let newUnit = {
       unitCode: unitCode, // parameters
@@ -412,7 +418,6 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
       fontColor: unitShopItem.fontColor // unitShop
     }
     // check if same unit type exists in faction
-    const units = rooms[roomUuid].units
     const sameUnits = units.filter(u => u.unitCode === unitCode && u.factionCode === factionCode)
     // update identifier to all units of this type
     if (sameUnits.length === 1) {
@@ -464,18 +469,22 @@ const updateUnitIdentifier = (roomUuid, unitCode, oldIdentifier, newIdentifier) 
 
 const updateUnitMen = (roomUuid, factionCode, unitCode, identifier, men) => {
   if (rooms.hasOwnProperty(roomUuid)) {
+    // min max value of men
+    const menValue = men
+    if (men < 1) menValue = 1
+    if (men > 99999) menValue = 99999
     // find unit
     const units = rooms[roomUuid].units
     const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
     const previousMen = units[unitIndex].men
     const previousMaxHd = units[unitIndex].maxHd
     // update identifier and calculate new max hd
-    units[unitIndex].men = men
+    units[unitIndex].men = menValue
     const unitShopItem = unitShop.find(u => u.code === unitCode)
-    units[unitIndex].maxHd = parseInt(men * unitShopItem.hdPerMen)
-    units[unitIndex].hd = parseInt(men * unitShopItem.hdPerMen)
-    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed men value from ${previousMen} to ${men}`)
-    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed maxHd value from ${previousMaxHd} to ${men * unitShopItem.hdPerMen}`)
+    units[unitIndex].maxHd = parseInt(menValue * unitShopItem.hdPerMen)
+    units[unitIndex].hd = parseInt(menValue * unitShopItem.hdPerMen)
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed men value from ${previousMen} to ${menValue}`)
+    createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed maxHd value from ${previousMaxHd} to ${menValue * unitShopItem.hdPerMen}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateUnitMen`)
   }
