@@ -159,7 +159,6 @@ module.exports = (server) => {
     })
 
     socket.on('update-unit-coordinates', (data) => {
-      console.log(`Receiving ${data.unitFullCode}`)
       const unitFullCodeSplit = data.unitFullCode.split('-')
       const factionCode = unitFullCodeSplit[0] || ''
       const unitCode = unitFullCodeSplit[1] || ''
