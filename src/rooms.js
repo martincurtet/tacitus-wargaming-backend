@@ -622,19 +622,24 @@ const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coor
     const factions = rooms[roomUuid].factions
 
     const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
-    const prevCoordinates = units[unitIndex].coordinates
-    units[unitIndex].coordinates = coordinates
+    if (unitIndex === 1) {
+      console.log(units)
+      console.error(`Unit ${factionCode}-${unitCode}${identifier ? `-${identifier}` : ''} not found in room ${roomUuid}`)
+    }
+    const unit = units[unitIndex]
+    const prevCoordinates = unit.coordinates || ''
+    unit.coordinates = coordinates
 
     // add unit in board cell
     board[coordinates] = {
       ...board[coordinates],
       unitFullCode: `${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`}`,
-      unitIcon: units[unitIndex].iconName,
-      unitIdentifier: units[unitIndex].identifier,
+      unitIcon: unit.iconName,
+      unitIdentifier: unit.identifier,
       factionIcon: factions.find(f => f.code === factionCode).icon,
-      veterancyIcon: veterancyMap[parseInt(units[unitIndex].veterancy)].iconName,
-      identifier: units[unitIndex].identifier,
-      identifierColor: units[unitIndex].fontColor
+      veterancyIcon: veterancyMap[parseInt(unit.veterancy)].iconName,
+      identifier: unit.identifier,
+      identifierColor: unit.fontColor
     }
 
     // remove unit from previous board cell
@@ -650,7 +655,7 @@ const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coor
         identifierColor: ''
       }
 
-      units[unitIndex].fire = board[coordinates].fire
+      unit.fire = board[coordinates].fire
     }
     createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed coordinates from ${prevCoordinates} to ${coordinates}`)
   } else {
