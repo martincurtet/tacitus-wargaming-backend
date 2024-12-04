@@ -623,12 +623,10 @@ const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coor
 
     const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
     if (unitIndex < 0) {
-      console.log(units)
       console.error(`Unit ${factionCode}-${unitCode}${identifier ? `-${identifier}` : ''} not found in room ${roomUuid}`)
     }
     const unit = units[unitIndex]
-    console.log(unit)
-    const prevCoordinates = unit.coordinates || ''
+    const prevCoordinates = unit.coordinates
     unit.coordinates = coordinates
 
     // add unit in board cell
