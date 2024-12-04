@@ -622,9 +622,6 @@ const updateUnitCoordinates = (roomUuid, factionCode, unitCode, identifier, coor
     const factions = rooms[roomUuid].factions
 
     const unitIndex = units.findIndex(u => u.factionCode === factionCode && u.unitCode === unitCode && u.identifier === identifier)
-    if (unitIndex < 0) {
-      console.error(`Unit ${factionCode}-${unitCode}${identifier ? `-${identifier}` : ''} not found in room ${roomUuid}`)
-    }
     const unit = units[unitIndex]
     const prevCoordinates = unit.coordinates
     unit.coordinates = coordinates
