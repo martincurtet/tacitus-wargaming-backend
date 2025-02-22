@@ -351,19 +351,12 @@ const compareUnits = (unit1, unit2) => {
 }
 
 const calculateCasualties = (hd, maxHd, veterancy) => {
-  let casualties = 0
-  if (hd >= maxHd / 2) return casualties
-  let hdBelowHalf = maxHd / 2 - hd
-  if (veterancy === '0') {
-    casualties = Math.floor(hdBelowHalf)
-  } else if (veterancy === '1') {
-    casualties = Math.floor(hdBelowHalf / 2)
-  } else if (veterancy === '2') {
-    casualties = Math.floor(hdBelowHalf / 3)
-  } else if (veterancy === '3') {
-    casualties = Math.floor(hdBelowHalf / 5)
+  if (hd > maxHd / 2) {
+    return 0
   }
-  return casualties
+  const effectiveHd = Math.floor(maxHd / 2) - hd
+  const casualtyRate = veterancy === 3 ? 5 : veterancy + 1
+  return Math.max(0, Math.floor(effectiveHd / casualtyRate) + 1)
 }
 
 module.exports = {
