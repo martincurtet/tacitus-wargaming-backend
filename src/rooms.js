@@ -297,7 +297,7 @@ const addFaction = (roomUuid, factionCode) => {
       let faction = factionShop.find(f => f.code === factionCode)
       rooms[roomUuid].factions.push({
         ...faction,
-        stratAbility: 0
+        stratAbility: 3
       })
       createLog(roomUuid, `Faction ${factionCode} added to room ${roomUuid}`)
     }
