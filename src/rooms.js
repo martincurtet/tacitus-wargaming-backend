@@ -666,7 +666,7 @@ const updateUnitHd = (roomUuid, factionCode, unitCode, identifier, hd) => {
     const prevHd = units[unitIndex].hd
     units[unitIndex].hd = parseInt(hd)
     const prevCasualties = units[unitIndex].casualties
-    const casualties = calculateCasualties(parseInt(hd), parseInt(units[unitIndex].maxHd), units[unitIndex].veterancy)
+    const casualties = calculateCasualties(parseInt(hd), parseInt(units[unitIndex].maxHd), parseInt(units[unitIndex].veterancy))
     units[unitIndex].casualties = casualties
     createLog(roomUuid, `Unit ${factionCode}-${unitCode}${identifier === '' ? '' : `-${identifier}`} changed hd from ${prevHd} to ${hd} ${casualties === 0 ? '' : `and casualties from ${prevCasualties} to ${casualties}`}`)
   } else {
