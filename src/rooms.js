@@ -36,7 +36,7 @@ let exampleRoom = {
   //   color: '#ed1b24',
   //   icon: 'karinia.png',
   //   name: 'Karinia',
-  //   stratAbility: 0
+  //   stratAbility: parseInt(process.env.DEFAULT_STRAT_ABILITY || 3)
   // }],
   initiativeHistory: [],
   log: [],
@@ -80,7 +80,7 @@ const createRoom = (username, socketId) => {
       userColor: assignUserColor([]),
       currentSocketId: socketId,
       faction: '',
-      stratAbility: 0
+      stratAbility: parseInt(process.env.DEFAULT_STRAT_ABILITY || 3)
     }]
   }
   // commander strategic ability modifier: CSAM
@@ -297,7 +297,7 @@ const addFaction = (roomUuid, factionCode) => {
       let faction = factionShop.find(f => f.code === factionCode)
       rooms[roomUuid].factions.push({
         ...faction,
-        stratAbility: 3
+        stratAbility: parseInt(process.env.DEFAULT_STRAT_ABILITY || 3)
       })
       createLog(roomUuid, `Faction ${factionCode} added to room ${roomUuid}`)
     }
@@ -339,7 +339,7 @@ const updateFactionsStratAbility = (roomUuid) => {
     if (factionStratAbilities[f.code] !== undefined) {
       f.stratAbility = factionStratAbilities[f.code]
     } else {
-      f.stratAbility = 0 // Default value if no users belong to the faction
+      f.stratAbility = parseInt(process.env.DEFAULT_STRAT_ABILITY || 3) // Default value if no users belong to the faction
     }
   })
   } else {
@@ -783,7 +783,7 @@ const createUser = (roomUuid, socketId, username) => {
       userColor: assignUserColor(users),
       currentSocketId: socketId,
       faction: '',
-      stratAbility: 0
+      stratAbility: parseInt(process.env.DEFAULT_STRAT_ABILITY || 3)
     })
     createLog(roomUuid, `User ${userUuid} (${username}) joined`)
     return userUuid
