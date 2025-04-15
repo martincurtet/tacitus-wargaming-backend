@@ -29,7 +29,7 @@ const unitShop = [
     icon: 'Dwarf_longbeard_1.png',
     name: 'Normal Dwarfen Longbeard',
     veterancy: '1',
-    fontColor: 'black'
+    fontColor: 'orange'
   },
   {
     code: 'NLINF',
@@ -245,7 +245,7 @@ const unitShop = [
     icon: 'Wizard_2.png',
     name: 'Veteran Wizards',
     veterancy: '2',
-    fontColor: 'black'
+    fontColor: 'white'
   },
   {
     code: 'NORC2',
