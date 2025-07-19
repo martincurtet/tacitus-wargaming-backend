@@ -82,10 +82,10 @@ const unitShop = [
   {
     code: 'EHINF',
     hdPerMen: '5',
-    icon: 'Heavy_infantry_1.png',
+    icon: 'Heavy_infantry_elite_1.png',
     name: 'Elite Heavy Infantry',
     veterancy: '3',
-    fontColor: 'black'
+    fontColor: 'white'
   },
   {
     code: 'VPATH',
