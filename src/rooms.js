@@ -19,7 +19,8 @@ const OVERLAY_TOKENS = new Set([
 const normalizeTerrainString = (input) => {
   if (input === undefined || input === null) return ''
   const raw = String(input).trim()
-  if (raw === '') return ''
+  // Compatibility: treat empty string as a clear request
+  if (raw === '') return 'clear'
   const delimiterNormalized = raw.replace(/,/g, '+')
   if (delimiterNormalized.toLowerCase() === 'clear') return 'clear'
   const tokens = delimiterNormalized.split('+').map(t => t.trim()).filter(Boolean)
@@ -39,8 +40,9 @@ const clearOverlayTokens = (terrainString) => {
   if (!terrainString) return ''
   const delimiterNormalized = String(terrainString).replace(/,/g, '+')
   const tokens = delimiterNormalized.split('+').map(t => t.trim()).filter(Boolean)
-  const baseTokens = tokens.filter(t => !OVERLAY_TOKENS.has(t))
-  return baseTokens.join('+')
+  // Keep only recognized base tokens; remove overlays and any unknown tokens
+  const baseTokensOnly = tokens.filter(t => BASE_TOKENS.has(t))
+  return baseTokensOnly.join('+')
 }
 
 const ensureTerrainMigration = (roomUuid) => {
@@ -255,6 +257,9 @@ const updateBoardTerrain = (roomUuid, startCell, endCell, terrainType) => {
     const zone = calculateCellRange(startCell, endCell)
     let board = rooms[roomUuid].board
     const normalized = normalizeTerrainString(terrainType)
+    // Diagnostics: log normalized
+    console.log(`[updateBoardTerrain] normalized`, { roomUuid, startCell, endCell, normalized })
+    let loggedOneCell = false
     zone.forEach(cell => {
       const prevTile = board[cell] || {}
       if (normalized === 'clear') {
@@ -264,6 +269,20 @@ const updateBoardTerrain = (roomUuid, startCell, endCell, terrainType) => {
           ...prevTile,
           terrainType: cleared,
           fire: false
+        }
+        if (!loggedOneCell) {
+          console.log(`[updateBoardTerrain] clear cell`, {
+            roomUuid,
+            startCell,
+            endCell,
+            normalized,
+            cell,
+            before: prevTile.terrainType || '',
+            after: board[cell].terrainType || '',
+            prevFire: prevTile.fire === true,
+            nextFire: board[cell].fire === true
+          })
+          loggedOneCell = true
         }
       } else {
         // Parse existing tokens
@@ -277,23 +296,23 @@ const updateBoardTerrain = (roomUuid, startCell, endCell, terrainType) => {
         const incomingBaseTokens = incomingTokens.filter(t => BASE_TOKENS.has(t))
         const incomingOverlayTokens = incomingTokens.filter(t => OVERLAY_TOKENS.has(t))
 
+        // Base: if any base token is provided, replace base with the first provided
         let nextBase = existingBase
         let nextOverlays = [...existingOverlays]
         let nextFire = prevTile.fire === true
 
-        // Rule: if exactly one base token and no overlays provided -> replace base, keep overlays
-        if (incomingBaseTokens.length === 1 && incomingOverlayTokens.length === 0 && incomingTokens.length === 1) {
+        // Base replace: if any base token present in input, set it
+        if (incomingBaseTokens.length >= 1) {
           nextBase = incomingBaseTokens[0]
-        } else {
-          // Else: treat as overlay-additive
-          // Add in provided overlay tokens (dedupe), and set fire if included
-          for (const tok of incomingOverlayTokens) {
-            if (tok === 'fire') {
-              nextFire = true
-              continue
-            }
-            if (!nextOverlays.includes(tok)) nextOverlays.push(tok)
+        }
+
+        // Overlays additive: add provided overlay tokens; set fire if included
+        for (const tok of incomingOverlayTokens) {
+          if (tok === 'fire') {
+            nextFire = true
+            continue
           }
+          if (!nextOverlays.includes(tok)) nextOverlays.push(tok)
         }
 
         // Deduplicate and rebuild terrainType without 'fire'
@@ -312,6 +331,20 @@ const updateBoardTerrain = (roomUuid, startCell, endCell, terrainType) => {
           ...prevTile,
           terrainType: resultTokens.join('+'),
           fire: nextFire
+        }
+        if (!loggedOneCell) {
+          console.log(`[updateBoardTerrain] set cell`, {
+            roomUuid,
+            startCell,
+            endCell,
+            normalized,
+            cell,
+            before: prevTile.terrainType || '',
+            after: board[cell].terrainType || '',
+            prevFire: prevTile.fire === true,
+            nextFire: board[cell].fire === true
+          })
+          loggedOneCell = true
         }
       }
     })
