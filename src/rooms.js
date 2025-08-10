@@ -1,12 +1,77 @@
 const { v4: uuidv4 } = require('uuid')
 const { unitShop, compareUnits, calculateCasualties } = require('./units')
 const { factionShop } = require('./factions')
-const { calculateCellRange, terrainColorMap, findClosestFreeTile, assignUserColor } = require('./functions')
+const { calculateCellRange, findClosestFreeTile, assignUserColor } = require('./functions')
 const { veterancyMap } = require('./veterancy')
 
 const DEFAULT_MEN_VALUE = 20
 
 let rooms = {}
+
+// TERRAIN HELPERS
+const BASE_TOKENS = new Set([
+  'plains', 'forest', 'mud', 'jungle', 'undergrowth', 'marsh', 'shallow-water', 'deep-water', 'road'
+])
+const OVERLAY_TOKENS = new Set([
+  'high-ground', 'high-ground-2', 'low-ground', 'low-ground-2', 'impassable-r', 'impassable-b', 'fire'
+])
+
+const normalizeTerrainString = (input) => {
+  if (input === undefined || input === null) return ''
+  const raw = String(input).trim()
+  if (raw === '') return ''
+  const delimiterNormalized = raw.replace(/,/g, '+')
+  if (delimiterNormalized.toLowerCase() === 'clear') return 'clear'
+  const tokens = delimiterNormalized.split('+').map(t => t.trim()).filter(Boolean)
+  // de-duplicate while preserving order
+  const seen = new Set()
+  const ordered = []
+  for (const token of tokens) {
+    if (!seen.has(token)) {
+      seen.add(token)
+      ordered.push(token)
+    }
+  }
+  return ordered.join('+')
+}
+
+const clearOverlayTokens = (terrainString) => {
+  if (!terrainString) return ''
+  const delimiterNormalized = String(terrainString).replace(/,/g, '+')
+  const tokens = delimiterNormalized.split('+').map(t => t.trim()).filter(Boolean)
+  const baseTokens = tokens.filter(t => !OVERLAY_TOKENS.has(t))
+  return baseTokens.join('+')
+}
+
+const ensureTerrainMigration = (roomUuid) => {
+  const room = rooms[roomUuid]
+  if (!room || room.__terrainMigrated) return
+  const board = room.board || {}
+  for (const cell in board) {
+    if (!Object.prototype.hasOwnProperty.call(board, cell)) continue
+    const tile = board[cell] || {}
+    const hasTokens = typeof tile.terrainType === 'string' && tile.terrainType.trim() !== ''
+    if (!hasTokens && tile.impassable === true) {
+      board[cell] = {
+        ...tile,
+        terrainType: 'high-ground'
+      }
+    }
+  }
+  room.__terrainMigrated = true
+}
+
+// Simple per-room FIFO queue to serialize terrain updates (last-write-wins by arrival order)
+const roomUpdateQueues = new Map()
+
+const enqueueRoomTask = (roomUuid, task) => {
+  const previous = roomUpdateQueues.get(roomUuid) || Promise.resolve()
+  const next = previous.then(() => task()).catch((err) => {
+    console.error(`# Room ${roomUuid} task error`, err)
+  })
+  roomUpdateQueues.set(roomUuid, next)
+  return next
+}
 
 // EXAMPLE ROOM
 let exampleRoom = {
@@ -155,6 +220,8 @@ const readStep = (roomUuid) => {
 // BOARD CRUD
 const readBoard = (uuid) => {
   if (rooms.hasOwnProperty(uuid)) {
+    // one-time backward compatibility migration
+    ensureTerrainMigration(uuid)
     return rooms[uuid].board
   } else {
     console.error(`# Couldn't find room ${uuid} - readBoard`)
@@ -187,29 +254,78 @@ const updateBoardTerrain = (roomUuid, startCell, endCell, terrainType) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const zone = calculateCellRange(startCell, endCell)
     let board = rooms[roomUuid].board
+    const normalized = normalizeTerrainString(terrainType)
     zone.forEach(cell => {
-      if (terrainType === 'fire') {
+      const prevTile = board[cell] || {}
+      if (normalized === 'clear') {
+        // Remove overlay tokens only, preserve base tokens
+        const cleared = clearOverlayTokens(prevTile.terrainType || '')
         board[cell] = {
-          ...board[cell],
-          fire: true,
-        }
-      } else if (terrainType === 'high-ground') {
-        board[cell] = {
-          ...board[cell],
-          impassable: terrainType === 'high-ground'
+          ...prevTile,
+          terrainType: cleared,
+          fire: false
         }
       } else {
+        // Parse existing tokens
+        const existingTokens = (prevTile.terrainType || '').replace(/,/g, '+').split('+').map(t => t.trim()).filter(Boolean)
+        // Separate existing base and overlays (keep unknowns as-is)
+        let existingBase = existingTokens.find(t => BASE_TOKENS.has(t)) || ''
+        const existingOverlays = existingTokens.filter(t => !BASE_TOKENS.has(t))
+
+        // Parse incoming tokens
+        const incomingTokens = normalized.split('+').map(t => t.trim()).filter(Boolean)
+        const incomingBaseTokens = incomingTokens.filter(t => BASE_TOKENS.has(t))
+        const incomingOverlayTokens = incomingTokens.filter(t => OVERLAY_TOKENS.has(t))
+
+        let nextBase = existingBase
+        let nextOverlays = [...existingOverlays]
+        let nextFire = prevTile.fire === true
+
+        // Rule: if exactly one base token and no overlays provided -> replace base, keep overlays
+        if (incomingBaseTokens.length === 1 && incomingOverlayTokens.length === 0 && incomingTokens.length === 1) {
+          nextBase = incomingBaseTokens[0]
+        } else {
+          // Else: treat as overlay-additive
+          // Add in provided overlay tokens (dedupe), and set fire if included
+          for (const tok of incomingOverlayTokens) {
+            if (tok === 'fire') {
+              nextFire = true
+              continue
+            }
+            if (!nextOverlays.includes(tok)) nextOverlays.push(tok)
+          }
+        }
+
+        // Deduplicate and rebuild terrainType without 'fire'
+        const resultTokens = []
+        if (nextBase) resultTokens.push(nextBase)
+        const seen = new Set()
+        for (const tok of nextOverlays) {
+          if (tok === 'fire') continue
+          if (!seen.has(tok)) {
+            seen.add(tok)
+            resultTokens.push(tok)
+          }
+        }
+
         board[cell] = {
-          ...board[cell],
-          terrainType: terrainType,
-          terrainColor: terrainColorMap[terrainType]
+          ...prevTile,
+          terrainType: resultTokens.join('+'),
+          fire: nextFire
         }
       }
     })
-    createLog(roomUuid, `${terrainType} terrain type applied between cells ${startCell} and ${endCell}`)
+    createLog(roomUuid, `${normalized} terrain type applied between cells ${startCell} and ${endCell}`)
   } else {
     console.error(`# Couldn't find room ${roomUuid} - updateBoardTerrain`)
   }
+}
+
+// Public async API to serialize terrain updates per room
+const queueBoardTerrainUpdate = async (roomUuid, startCell, endCell, terrainType) => {
+  await enqueueRoomTask(roomUuid, () => {
+    updateBoardTerrain(roomUuid, startCell, endCell, terrainType)
+  })
 }
 
 const updateBoardMarker = (roomUuid, userUuid, coordinates) => {
@@ -912,7 +1028,7 @@ module.exports = {
   rooms,
   createRoom, readRoom, readRoomHost, deleteRoom,
   nextStep, prevStep, readStep,
-  readBoard, readBoardSize, updateBoardSize, updateBoardTerrain, updateBoardMarker, updateBoardFire,
+  readBoard, readBoardSize, updateBoardSize, queueBoardTerrainUpdate, updateBoardMarker, updateBoardFire,
   removeMarkerUser,
   createUser, readUsers,readUserUuid,readUserFaction, updateUserSocket, updateUserFaction, updateUserStratAbility, disconnectUser,
   addFaction, readFactions, updateFactionsStratAbility, removeFaction,
