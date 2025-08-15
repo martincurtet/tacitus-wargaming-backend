@@ -2,7 +2,7 @@ const { Server } = require('socket.io')
 const {
   createRoom, readRoom, readRoomHost,
   createUser, readUsers, readUserUuid, updateUserFaction, disconnectUser, updateUserSocket, updateUserStratAbility, readUserFaction,
-  readBoard, readBoardSize, updateBoardSize, updateBoardTerrain, updateBoardMarker, updateBoardFire,
+  readBoard, readBoardSize, updateBoardSize, queueBoardTerrainUpdate, updateBoardMarker, updateBoardFire,
   readFactions, addFaction, removeFaction, updateFactionsStratAbility,
   readMessages, createMessage,
   readLog,
@@ -153,8 +153,8 @@ module.exports = (server) => {
       io.to(data.roomUuid).emit('board-size-updated', { boardSize: readBoardSize(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
-    socket.on('update-board-terrain', (data) => {
-      updateBoardTerrain(data.roomUuid, data.startCell, data.endCell, data.terrainType)
+    socket.on('update-board-terrain', async (data) => {
+      await queueBoardTerrainUpdate(data.roomUuid, data.startCell, data.endCell, data.terrainType)
       io.to(data.roomUuid).emit('board-terrain-updated', { board: readBoard(data.roomUuid), log: readLog(data.roomUuid) })
     })
 
