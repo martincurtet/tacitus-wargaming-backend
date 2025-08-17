@@ -137,7 +137,7 @@ const unitShop = [
   },
   {
     code: 'VHORA',
-    hdPerMen: '2',
+    hdPerMen: '3',
     icon: 'Horse_archer_1.png',
     name: 'Veteran Horse Archer',
     veterancy: '2',
