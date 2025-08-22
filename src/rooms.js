@@ -552,6 +552,7 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
       iconName: unitShopItem.icon, // unitShop
       men: DEFAULT_MEN_VALUE, // default value
       hdPerMen: unitShopItem.hdPerMen, // unitShop
+      sizeThreshold: unitShopItem.sizeThreshold, // unitShop
       maxHd: parseInt(unitShopItem.hdPerMen) * DEFAULT_MEN_VALUE, // calculated
       hd: parseInt(unitShopItem.hdPerMen) * DEFAULT_MEN_VALUE, // calculated
       casualties: 0, // default value
