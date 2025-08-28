@@ -13,6 +13,7 @@ const unitShop = [
     icon: 'Peasant_spear_1.png',
     name: 'Militia Spearman',
     veterancy: '0',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -21,6 +22,7 @@ const unitShop = [
     icon: 'Band_of_misfits_1.png',
     name: 'Militia Band of Misfits',
     veterancy: '0',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -29,6 +31,7 @@ const unitShop = [
     icon: 'Dwarf_longbeard_1.png',
     name: 'Normal Dwarfen Longbeard',
     veterancy: '1',
+    sizeThreshold: '40',
     fontColor: 'orange'
   },
   {
@@ -37,6 +40,7 @@ const unitShop = [
     icon: 'Light_infantry_1.png',
     name: 'Normal Light Infantry',
     veterancy: '1',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -45,6 +49,7 @@ const unitShop = [
     icon: 'Javelin_1.png',
     name: 'Normal Javelin Infantry',
     veterancy: '1',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -53,6 +58,7 @@ const unitShop = [
     icon: 'Medium_infantry_1.png',
     name: 'Veteran Medium Infantry',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -61,6 +67,7 @@ const unitShop = [
     icon: 'Heavy_infantry_1.png',
     name: 'Veteran Heavy Infantry',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -69,6 +76,7 @@ const unitShop = [
     icon: 'Phalanx_1.png',
     name: 'Veteran Phalanx',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'white'
   },
   {
@@ -77,6 +85,7 @@ const unitShop = [
     icon: 'Assassin_1.png',
     name: 'Elite Human Assassins',
     veterancy: '3',
+    sizeThreshold: '40',
     fontColor: 'white'
   },
   {
@@ -85,6 +94,7 @@ const unitShop = [
     icon: 'Heavy_infantry_elite_1.png',
     name: 'Elite Heavy Infantry',
     veterancy: '3',
+    sizeThreshold: '40',
     fontColor: 'white'
   },
   {
@@ -93,6 +103,7 @@ const unitShop = [
     icon: 'Pathfinder_1.png',
     name: 'Veteran Pathfinder',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -101,6 +112,7 @@ const unitShop = [
     icon: 'Drow_sapper_1.png',
     name: 'Veteran Drow Sappers',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'white'
   },
   {
@@ -109,6 +121,7 @@ const unitShop = [
     icon: 'Yuan_ti_skirmisher_1.png',
     name: 'Normal Yuan-ti Skirmishers',
     veterancy: '1',
+    sizeThreshold: '40',
     fontColor: 'white'
   },
   {
@@ -117,6 +130,7 @@ const unitShop = [
     icon: 'Dwarf_crossbow_1.png',
     name: 'Normal Dwarven Quarreler',
     veterancy: '1',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -125,6 +139,7 @@ const unitShop = [
     icon: 'Archer_1.png',
     name: 'Veteran Archer',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'white'
   },
   {
@@ -133,6 +148,7 @@ const unitShop = [
     icon: 'Light_cavalry_1.png',
     name: 'Veteran Light Horsemen',
     veterancy: '2',
+    sizeThreshold: '20',
     fontColor: 'white'
   },
   {
@@ -141,6 +157,7 @@ const unitShop = [
     icon: 'Horse_archer_1.png',
     name: 'Veteran Horse Archer',
     veterancy: '2',
+    sizeThreshold: '20',
     fontColor: 'black'
   },
   {
@@ -149,6 +166,7 @@ const unitShop = [
     icon: 'Dinosaur_cavalry_1.png',
     name: 'Elite Dinosaur Cavalry',
     veterancy: '3',
+    sizeThreshold: '20',
     fontColor: 'black'
   },
   {
@@ -157,6 +175,7 @@ const unitShop = [
     icon: 'Heavy_cavalry_1.png',
     name: 'Elite Heavy Cavalry',
     veterancy: '3',
+    sizeThreshold: '20',
     fontColor: 'black'
   },
   {
@@ -165,6 +184,7 @@ const unitShop = [
     icon: 'Heavy_cavalry_2.png',
     name: 'Elite Kingsguard Cavalry',
     veterancy: '3',
+    sizeThreshold: '20',
     fontColor: 'white'
   },
   {
@@ -173,6 +193,7 @@ const unitShop = [
     icon: 'Griffon_archer_1.png',
     name: 'Elite Griffon Rider Archers',
     veterancy: '3',
+    sizeThreshold: '20',
     fontColor: 'black'
   },
   {
@@ -181,6 +202,7 @@ const unitShop = [
     icon: 'Griffon_rider_1.png',
     name: 'Elite Griffon Rider',
     veterancy: '3',
+    sizeThreshold: '20',
     fontColor: 'white'
   },
   {
@@ -189,6 +211,7 @@ const unitShop = [
     icon: 'Wyvern_rider_1.png',
     name: 'Elite Wyvern Rider',
     veterancy: '3',
+    sizeThreshold: '20',
     fontColor: 'black'
   },
   {
@@ -197,6 +220,7 @@ const unitShop = [
     icon: 'Medium_infantry_1.png',
     name: 'Veteran Medium Infantry, Mounted',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -205,6 +229,7 @@ const unitShop = [
     icon: 'Dretch_1.png',
     name: 'Normal Dretch',
     veterancy: '1',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -213,6 +238,7 @@ const unitShop = [
     icon: 'Maw_demon_1.png',
     name: 'Veteran Maw Demon',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -221,6 +247,7 @@ const unitShop = [
     icon: 'Wizard_heavy_infantry_1.png',
     name: 'Veteran Heavy Infantry (with lvl5 wizard)',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -229,6 +256,7 @@ const unitShop = [
     icon: 'Wolf_tamer_1.png',
     name: 'Normal Wolf Tamer (with lvl6 druid)',
     veterancy: '1',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -237,6 +265,7 @@ const unitShop = [
     icon: 'Wizard_1.png',
     name: 'Elite Wizards',
     veterancy: '3',
+    sizeThreshold: '40',
     fontColor: 'white'
   },
   {
@@ -245,6 +274,7 @@ const unitShop = [
     icon: 'Wizard_2.png',
     name: 'Veteran Wizards',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'white'
   },
   {
@@ -253,6 +283,7 @@ const unitShop = [
     icon: 'Rouge_cleric_1.png',
     name: 'Normal Order of Rouge Clerics',
     veterancy: '1',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -261,6 +292,7 @@ const unitShop = [
     icon: 'Amaunator_cleric_1.png',
     name: 'Elite Amaunator Clerics',
     veterancy: '3',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -269,6 +301,7 @@ const unitShop = [
     icon: 'Flying_wizard_1.png',
     name: 'Veteran Airborne Wizards',
     veterancy: '2',
+    sizeThreshold: '20',
     fontColor: 'black'
   },
   {
@@ -277,6 +310,7 @@ const unitShop = [
     icon: 'Glamour_bard_1.png',
     name: 'Veteran Glamour Bards',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -285,6 +319,7 @@ const unitShop = [
     icon: 'Rouge_cleric_2.png',
     name: 'Veteran Order of Rouge Clerics',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -293,6 +328,7 @@ const unitShop = [
     icon: 'Mounted_wizard_1.png',
     name: 'Elite Mounted Wizards',
     veterancy: '3',
+    sizeThreshold: '20',
     fontColor: 'white'
   },
   {
@@ -301,6 +337,7 @@ const unitShop = [
     icon: 'Mounted_wizard_2.png',
     name: 'Normal Wizard Mounted Dropouts',
     veterancy: '1',
+    sizeThreshold: '20',
     fontColor: 'black'
   },
   {
@@ -309,6 +346,7 @@ const unitShop = [
     icon: 'Flying_wizard_2.png',
     name: 'Elite Airborne Wizards',
     veterancy: '3',
+    sizeThreshold: '20',
     fontColor: 'white'
   },
   {
@@ -317,6 +355,7 @@ const unitShop = [
     icon: 'Amaunator_paladin_1.png',
     name: 'Elite Amaunator Paladins',
     veterancy: '3',
+    sizeThreshold: '40',
     fontColor: 'black'
   },
   {
@@ -325,6 +364,7 @@ const unitShop = [
     icon: 'Fey_warlock_1.png',
     name: 'Veteran Fey Warlocks',
     veterancy: '2',
+    sizeThreshold: '40',
     fontColor: 'white'
   }
 ]
