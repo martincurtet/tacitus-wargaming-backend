@@ -126,6 +126,14 @@ module.exports = (server) => {
       io.to(data.roomUuid).emit('unit-added', { units: readUnits(data.roomUuid) })
     })
 
+    socket.on('add-units-bulk', (data) => {
+      // data: { roomUuid, units: [{ factionCode: 'KAR', unitCode: 'VHINF', men: 25 }, ...] }
+      data.units.forEach(unit => {
+        addUnit(data.roomUuid, unit.factionCode, unit.unitCode, unit.men)
+      })
+      io.to(data.roomUuid).emit('units-bulk-added', { units: readUnits(data.roomUuid) })
+    })
+
     socket.on('remove-unit', (data) => {
       removeUnit(data.roomUuid, data.factionCode, data.unitCode, data.identifier)
       io.to(data.roomUuid).emit('unit-removed', { units: readUnits(data.roomUuid) })
