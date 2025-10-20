@@ -536,13 +536,15 @@ const readMessages = (roomUuid) => {
 }
 
 // UNIT CRUD
-const addUnit = (roomUuid, factionCode, unitCode) => {
+const addUnit = (roomUuid, factionCode, unitCode, men = DEFAULT_MEN_VALUE) => {
   if (rooms.hasOwnProperty(roomUuid)) {
     const units = rooms[roomUuid].units
     // Check if faction is full (100 units)
     if (units.filter(u => u.factionCode === factionCode).length >= 100) return
     // get unit information
     const unitShopItem = unitShop.find(u => u.code === unitCode)
+    // Validate and constrain men value
+    const menValue = Math.max(1, Math.min(99999, parseInt(men) || DEFAULT_MEN_VALUE))
     let newUnit = {
       unitCode: unitCode, // parameters
       name: unitShopItem.name, // unitShop
@@ -550,11 +552,11 @@ const addUnit = (roomUuid, factionCode, unitCode) => {
       identifier: '', // calculated below
       factionCode: factionCode, // parameters
       iconName: unitShopItem.icon, // unitShop
-      men: DEFAULT_MEN_VALUE, // default value
+      men: menValue, // parameter or default value
       hdPerMen: unitShopItem.hdPerMen, // unitShop
       sizeThreshold: unitShopItem.sizeThreshold, // unitShop
-      maxHd: parseInt(unitShopItem.hdPerMen) * DEFAULT_MEN_VALUE, // calculated
-      hd: parseInt(unitShopItem.hdPerMen) * DEFAULT_MEN_VALUE, // calculated
+      maxHd: parseInt(unitShopItem.hdPerMen) * menValue, // calculated
+      hd: parseInt(unitShopItem.hdPerMen) * menValue, // calculated
       casualties: 0, // default value
       fatigue: 0, // default value
       notes: '', // empty
